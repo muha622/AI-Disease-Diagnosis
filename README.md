@@ -61,7 +61,7 @@ Open `disease_diagnosis_v3.html` directly in any modern browser — **no server 
 
 | Name | Role |
 |---|---|
-| Muhammed Salma | Developer & Designer |
+| Muhammed Salma | Developer  |
 | Hussain Abbas | Developer |
 | Ahmed Abbas | Developer |
 | Hawraa Saadi | Developer |
