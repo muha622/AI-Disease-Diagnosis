@@ -61,7 +61,7 @@ Open `disease_diagnosis_v3.html` directly in any modern browser — **no server 
 
 | Name | Role |
 |---|---|
-| Muhammed Salma | Developer  |
+| Muhammed Salam | Developer  |
 | Hussain Abbas | Developer |
 | Ahmed Abbas | Developer |
 | Hawraa Saadi | Developer |
@@ -86,4 +86,4 @@ You may share and adapt this work **for non-commercial purposes only**, with pro
 
 [![CC BY-NC 4.0](https://licensebuttons.net/l/by-nc/4.0/88x31.png)](https://creativecommons.org/licenses/by-nc/4.0/)
 
-© 2025 Muhammed Salma, Hussain Abbas, Ahmed Abbas, Hawraa Saadi, Malak Muhammed. All rights reserved.
+© 2025 Muhammed Salam, Hussain Abbas, Ahmed Abbas, Hawraa Saadi, Malak Muhammed. All rights reserved.
