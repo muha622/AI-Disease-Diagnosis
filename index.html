@@ -1,0 +1,1700 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║           DISEASE DIAGNOSIS SYSTEM — نظام تشخيص الأمراض         ║
+  ╠══════════════════════════════════════════════════════════════════╣
+  ║                                                                  ║
+  ║  © 2025 — All Rights Reserved                                   ║
+  ║                                                                  ║
+  ║  Authors / المؤلفون:                                             ║
+  ║    • Muhammed Salma                                              ║
+  ║    • Hussain Abbas                                               ║
+  ║    • Ahmed Abbas                                                 ║
+  ║    • Hawraa Saadi                                                ║
+  ║    • Malak Muhammed                                              ║
+  ║                                                                  ║
+  ║  Institution:  Al-Nahrain University                            ║
+  ║  Department:   Information Engineering / CyberSecurity          ║
+  ║  Course:       Cyber Security Fundamentals                       ║
+  ║  Supervisor:   Dr. Mohammed Faleh                                ║
+  ║                                                                  ║
+  ║  This project was developed as an academic assignment.           ║
+  ║  Unauthorized reproduction, distribution, or modification       ║
+  ║  of this software without explicit written permission           ║
+  ║  from the authors is strictly prohibited.                        ║
+  ║                                                                  ║
+  ║  Licensed under CC BY-NC 4.0                                    ║
+  ║  https://creativecommons.org/licenses/by-nc/4.0/                ║
+  ╚══════════════════════════════════════════════════════════════════╝
+-->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام تشخيص الأمراض | Disease Diagnosis</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080b14;
+  --bg2: #0d1120;
+  --bg3: #111827;
+  --card: #131c2e;
+  --border: #1e2d47;
+  --border2: #243451;
+  --blue: #3b82f6;
+  --blue2: #60a5fa;
+  --cyan: #06b6d4;
+  --green: #10b981;
+  --red: #ef4444;
+  --yellow: #f59e0b;
+  --purple: #8b5cf6;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --dim: #334155;
+  --glow: rgba(59,130,246,0.12);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  font-family:'Tajawal',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── Noise texture overlay ── */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:9999;
+  opacity:0.4;
+}
+
+/* ── Background glows ── */
+.bg-glow {
+  position:fixed;
+  border-radius:50%;
+  filter:blur(120px);
+  pointer-events:none;
+  z-index:0;
+}
+.bg-glow-1 {
+  width:600px; height:600px;
+  top:-200px; right:-100px;
+  background:radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+}
+.bg-glow-2 {
+  width:500px; height:500px;
+  bottom:-150px; left:-100px;
+  background:radial-gradient(circle, rgba(6,182,212,0.06) 0%, transparent 70%);
+}
+
+/* ── Header ── */
+header {
+  position:sticky; top:0; z-index:100;
+  padding:14px 32px;
+  display:flex; align-items:center; justify-content:space-between;
+  background:rgba(8,11,20,0.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+
+.logo {
+  display:flex; align-items:center; gap:12px;
+}
+
+.logo-icon {
+  width:40px; height:40px;
+  background:linear-gradient(135deg,#1d4ed8,#0891b2);
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:19px;
+  box-shadow:0 0 24px rgba(59,130,246,0.35);
+  flex-shrink:0;
+}
+
+.logo-texts {
+  display:flex; flex-direction:column; line-height:1.25;
+}
+
+.logo-main { font-size:15px; font-weight:800; letter-spacing:.3px; }
+.logo-sub  { font-size:10px; color:var(--muted); font-family:'Syne',sans-serif; letter-spacing:2px; text-transform:uppercase; }
+
+/* Lang toggle */
+.lang-toggle {
+  display:flex;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:3px;
+  gap:3px;
+}
+
+.lang-btn {
+  padding:6px 18px;
+  border:none; border-radius:6px;
+  font-size:12px; font-weight:700;
+  cursor:pointer;
+  transition:all .2s;
+  background:transparent;
+  color:var(--muted);
+  font-family:'Tajawal',sans-serif;
+  letter-spacing:.5px;
+}
+
+.lang-btn.active {
+  background:var(--blue);
+  color:#fff;
+  box-shadow:0 0 16px rgba(59,130,246,.4);
+}
+
+/* ── Layout ── */
+.app {
+  position:relative; z-index:1;
+  display:flex; gap:20px;
+  padding:24px 32px;
+  max-width:1440px; margin:0 auto;
+  min-height:calc(100vh - 68px);
+}
+
+/* ── Left panel ── */
+.left-panel {
+  width:400px; flex-shrink:0;
+  display:flex; flex-direction:column; gap:14px;
+}
+
+.panel-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px 20px;
+}
+
+.panel-title {
+  font-size:13px; font-weight:800;
+  text-transform:uppercase; letter-spacing:1.2px;
+  color:var(--text); margin-bottom:4px;
+}
+
+.system-status {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(16,185,129,.06);
+  border:1px solid rgba(16,185,129,.18);
+  border-radius:8px;
+  padding:8px 12px;
+  margin-top:12px;
+}
+
+.pulse-dot {
+  width:7px; height:7px; border-radius:50%;
+  background:var(--green);
+  flex-shrink:0;
+  animation:pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:.4;transform:scale(.75);}
+}
+
+.status-txt { font-size:12px; color:var(--green); font-weight:600; }
+
+/* Search */
+.search-wrap { position:relative; }
+
+.search-input {
+  width:100%;
+  padding:11px 16px 11px 42px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-size:13px;
+  font-family:'Tajawal',sans-serif;
+  transition:border-color .2s, box-shadow .2s;
+  outline:none;
+}
+
+.search-input:focus {
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(59,130,246,.12);
+}
+
+.search-input::placeholder { color:var(--dim); }
+
+.search-ico {
+  position:absolute; left:14px; top:50%;
+  transform:translateY(-50%);
+  color:var(--muted); font-size:15px;
+  pointer-events:none;
+}
+
+/* Stats pills */
+.stats-row { display:flex; gap:10px; }
+
+.stat-pill {
+  flex:1;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 14px;
+  display:flex; align-items:center; gap:9px;
+}
+
+.stat-ico { font-size:16px; }
+.stat-val { font-size:18px; font-weight:900; color:var(--blue2); font-family:'Syne',sans-serif; line-height:1; }
+.stat-lbl { font-size:10px; color:var(--muted); margin-top:1px; }
+
+/* Category tabs */
+.cat-tabs {
+  display:flex; gap:6px; flex-wrap:wrap;
+}
+
+.cat-tab {
+  padding:5px 12px;
+  border-radius:20px;
+  font-size:11px; font-weight:700;
+  cursor:pointer;
+  border:1px solid var(--border2);
+  background:transparent;
+  color:var(--muted);
+  font-family:'Tajawal',sans-serif;
+  transition:all .18s;
+  white-space:nowrap;
+}
+
+.cat-tab.active, .cat-tab:hover {
+  background:var(--blue);
+  border-color:var(--blue);
+  color:#fff;
+}
+
+/* Symptoms list */
+.sym-box {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  max-height:390px;
+}
+
+.sym-box-head {
+  padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:1px;
+  color:var(--muted);
+  flex-shrink:0;
+  display:flex; justify-content:space-between; align-items:center;
+}
+
+.sym-scroll {
+  overflow-y:auto;
+  flex:1;
+  padding:10px;
+}
+
+.sym-scroll::-webkit-scrollbar { width:4px; }
+.sym-scroll::-webkit-scrollbar-track { background:transparent; }
+.sym-scroll::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
+
+.sym-grid { display:flex; flex-direction:column; gap:3px; }
+
+.sym-item {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 11px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:all .14s;
+  border:1px solid transparent;
+  user-select:none;
+}
+
+.sym-item:hover { background:var(--bg3); border-color:var(--border); }
+
+.sym-item.selected {
+  background:rgba(59,130,246,.1);
+  border-color:rgba(59,130,246,.3);
+}
+
+.sym-item.hidden { display:none; }
+
+.sym-check {
+  width:16px; height:16px;
+  border:1.5px solid var(--dim);
+  border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+  transition:all .14s;
+  font-size:9px;
+}
+
+.sym-item.selected .sym-check {
+  background:var(--blue);
+  border-color:var(--blue);
+  color:#fff;
+}
+
+.sym-name { font-size:13px; color:var(--text); font-weight:400; }
+.sym-item.selected .sym-name { color:var(--blue2); font-weight:600; }
+
+.sym-badge {
+  margin-right:auto;
+  font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:4px;
+  background:rgba(107,114,128,.12);
+  color:var(--muted);
+  letter-spacing:.3px;
+  text-transform:uppercase;
+}
+
+/* Action buttons */
+.action-row { display:flex; gap:10px; }
+
+.btn-dx {
+  flex:1;
+  padding:13px;
+  background:linear-gradient(135deg,#1d4ed8,#0369a1);
+  border:none; border-radius:11px;
+  color:#fff; font-size:14px; font-weight:800;
+  font-family:'Tajawal',sans-serif;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:all .2s;
+  box-shadow:0 4px 20px rgba(59,130,246,.3);
+  letter-spacing:.3px;
+}
+
+.btn-dx:hover { transform:translateY(-1px); box-shadow:0 6px 28px rgba(59,130,246,.45); }
+.btn-dx:active { transform:none; }
+
+.btn-clr {
+  padding:13px 18px;
+  background:rgba(239,68,68,.08);
+  border:1px solid rgba(239,68,68,.25);
+  border-radius:11px;
+  color:var(--red); font-size:13px; font-weight:700;
+  font-family:'Tajawal',sans-serif;
+  cursor:pointer;
+  display:flex; align-items:center; gap:6px;
+  transition:all .2s;
+}
+
+.btn-clr:hover { background:rgba(239,68,68,.14); border-color:rgba(239,68,68,.4); }
+
+/* ── Right panel ── */
+.right-panel {
+  flex:1; min-width:0;
+  display:flex; flex-direction:column; gap:16px;
+}
+
+/* Empty state */
+.empty-state {
+  flex:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px;
+  background:var(--card);
+  border:1px dashed var(--border2);
+  border-radius:18px;
+  padding:60px;
+  text-align:center;
+}
+
+.empty-icon { font-size:56px; opacity:.25; }
+.empty-txt  { color:var(--muted); font-size:14px; line-height:1.8; max-width:280px; }
+
+/* Result */
+.result-wrap {
+  display:none; flex-direction:column; gap:16px; flex:1;
+}
+
+.result-wrap.show { display:flex; }
+
+/* Disease hero card */
+.hero-card {
+  background:var(--card);
+  border:1px solid var(--blue);
+  border-radius:18px;
+  padding:26px;
+  position:relative; overflow:hidden;
+  box-shadow:0 0 50px rgba(59,130,246,.1);
+}
+
+.hero-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,var(--blue),var(--cyan),var(--purple));
+}
+
+.hero-card::after {
+  content:'';
+  position:absolute; top:-80px; right:-80px;
+  width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle, rgba(59,130,246,.06) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.dx-label {
+  font-size:10px; font-weight:800; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted);
+  display:flex; align-items:center; gap:6px;
+  margin-bottom:8px;
+}
+
+.dx-name {
+  font-size:28px; font-weight:900;
+  color:var(--text); line-height:1.2;
+  margin-bottom:18px;
+  font-family:'Syne',sans-serif;
+}
+
+.conf-row {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:8px;
+}
+
+.conf-lbl { font-size:11px; color:var(--muted); font-weight:600; letter-spacing:.5px; text-transform:uppercase; }
+.conf-val { font-size:24px; font-weight:900; color:var(--green); font-family:'Syne',sans-serif; line-height:1; }
+
+.conf-track {
+  height:7px; background:var(--bg);
+  border-radius:999px; overflow:hidden;
+}
+
+.conf-fill {
+  height:100%;
+  background:linear-gradient(90deg,var(--blue),var(--cyan));
+  border-radius:999px;
+  transition:width .9s cubic-bezier(.4,0,.2,1);
+  width:0%;
+}
+
+/* Severity */
+.sev-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:7px 14px; border-radius:8px;
+  font-size:12px; font-weight:800;
+  margin-top:14px; letter-spacing:.3px;
+}
+
+.sev-high   { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25); color:var(--red); }
+.sev-medium { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); color:var(--yellow); }
+.sev-low    { background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.2); color:var(--green); }
+
+/* Matched symptoms tags */
+.matched-wrap {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px 20px;
+}
+
+.matched-title {
+  font-size:11px; font-weight:800; text-transform:uppercase;
+  letter-spacing:1.2px; color:var(--muted); margin-bottom:10px;
+  display:flex; align-items:center; gap:6px;
+}
+
+.matched-tags { display:flex; flex-wrap:wrap; gap:6px; }
+
+.tag {
+  padding:4px 10px; border-radius:6px;
+  font-size:11px; font-weight:600;
+}
+
+.tag.matched  { background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.25); color:var(--blue2); }
+.tag.unmatched{ background:rgba(100,116,139,.08); border:1px solid rgba(100,116,139,.15); color:var(--muted); }
+
+/* Info row */
+.info-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  flex:1;
+}
+
+.info-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px 20px;
+  display:flex; flex-direction:column; gap:10px;
+  animation:fadeUp .4s ease both;
+}
+
+@keyframes fadeUp {
+  from{opacity:0;transform:translateY(14px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+.info-card:nth-child(2) { animation-delay:.08s; }
+
+.info-card-head {
+  font-size:10px; font-weight:800; text-transform:uppercase;
+  letter-spacing:1.5px; display:flex; align-items:center; gap:7px;
+}
+
+.info-card-head.cyan   { color:var(--cyan); }
+.info-card-head.green  { color:var(--green); }
+
+.desc-body {
+  font-size:13px; color:var(--muted); line-height:1.75;
+}
+
+/* Precautions */
+.prec-list { list-style:none; display:flex; flex-direction:column; gap:7px; }
+
+.prec-list li {
+  display:flex; align-items:flex-start; gap:8px;
+  font-size:12.5px; color:var(--muted); line-height:1.55;
+}
+
+.prec-num {
+  width:19px; height:19px; border-radius:5px; flex-shrink:0;
+  background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.2);
+  color:var(--green); font-size:9px; font-weight:800;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; margin-top:1px;
+}
+
+/* Warning */
+.warn-bar {
+  display:flex; align-items:center; gap:9px;
+  padding:11px 16px;
+  background:rgba(245,158,11,.05);
+  border:1px solid rgba(245,158,11,.12);
+  border-radius:9px;
+  font-size:11.5px; color:rgba(245,158,11,.65);
+}
+
+/* Selected chips (top of right panel) */
+.selected-chips {
+  display:flex; flex-wrap:wrap; gap:6px;
+  min-height:0;
+}
+
+.chip {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 10px;
+  background:rgba(59,130,246,.12);
+  border:1px solid rgba(59,130,246,.22);
+  border-radius:20px;
+  font-size:11px; font-weight:600; color:var(--blue2);
+  cursor:pointer; transition:all .15s;
+}
+
+.chip:hover { background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.2); color:var(--red); }
+.chip .x { font-size:9px; opacity:.7; }
+
+/* Loading shimmer */
+.shimmer {
+  background:linear-gradient(90deg,var(--card) 0%,var(--bg3) 50%,var(--card) 100%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  border-radius:6px;
+}
+
+@keyframes shimmer {
+  0%{background-position:200% center;}
+  100%{background-position:-200% center;}
+}
+
+/* Responsive */
+@media(max-width:960px){
+  .app{flex-direction:column; padding:16px;}
+  .left-panel{width:100%;}
+  .info-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🧬</div>
+    <div class="logo-texts">
+      <span class="logo-main" id="hdr-title">نظام تشخيص الأمراض الذكي</span>
+      <span class="logo-sub">AI Disease Diagnosis</span>
+    </div>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('ar')" id="btn-ar">العربية</button>
+    <button class="lang-btn"        onclick="setLang('en')" id="btn-en">English</button>
+  </div>
+</header>
+
+<!-- App -->
+<div class="app">
+
+  <!-- LEFT -->
+  <div class="left-panel">
+
+    <div class="panel-card">
+      <div class="panel-title" id="lbl-ptitle">🔬 اختر الأعراض</div>
+      <div class="system-status">
+        <div class="pulse-dot"></div>
+        <span class="status-txt" id="lbl-status">النظام جاهز — اختر أعراضك للبدء</span>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-ico">🔍</span>
+      <input class="search-input" id="searchInput"
+             placeholder="ابحث عن عرَض..." oninput="filterSymptoms(this.value)">
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-pill">
+        <span class="stat-ico">📋</span>
+        <div>
+          <div class="stat-val" id="totalCount">0</div>
+          <div class="stat-lbl" id="lbl-total">إجمالي الأعراض</div>
+        </div>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-ico">✅</span>
+        <div>
+          <div class="stat-val" id="selectedCount">0</div>
+          <div class="stat-lbl" id="lbl-selected">محدد</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category filter -->
+    <div class="cat-tabs" id="catTabs"></div>
+
+    <!-- Symptoms list -->
+    <div class="sym-box">
+      <div class="sym-box-head">
+        <span id="lbl-symlist">قائمة الأعراض</span>
+        <span id="visCount" style="font-size:10px;"></span>
+      </div>
+      <div class="sym-scroll">
+        <div class="sym-grid" id="symList"></div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-row">
+      <button class="btn-dx" onclick="diagnose()">
+        <span>🩺</span><span id="lbl-dx">تشخيص الآن</span>
+      </button>
+      <button class="btn-clr" onclick="clearAll()">
+        <span>🗑</span><span id="lbl-clr">مسح</span>
+      </button>
+    </div>
+
+  </div><!-- /left -->
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+
+    <!-- Selected chips bar -->
+    <div class="selected-chips" id="chipsBar"></div>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🩺</div>
+      <div class="empty-txt" id="lbl-empty">اختر الأعراض من القائمة يسار ثم اضغط "تشخيص الآن" لمعرفة التشخيص المحتمل</div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-wrap" id="resultWrap">
+
+      <!-- Hero -->
+      <div class="hero-card">
+        <div class="dx-label"><span>🎯</span><span id="lbl-result">التشخيص المحتمل</span></div>
+        <div class="dx-name" id="diseaseName">—</div>
+        <div class="conf-row">
+          <span class="conf-lbl" id="lbl-conf">نسبة الثقة</span>
+          <span class="conf-val" id="confVal">0%</span>
+        </div>
+        <div class="conf-track"><div class="conf-fill" id="confFill"></div></div>
+        <div class="sev-badge sev-low" id="sevBadge">🟢 <span id="sevTxt">منخفض</span></div>
+      </div>
+
+      <!-- Matched symptoms -->
+      <div class="matched-wrap" id="matchedWrap">
+        <div class="matched-title"><span>🔗</span><span id="lbl-matched">الأعراض المطابقة</span></div>
+        <div class="matched-tags" id="matchedTags"></div>
+      </div>
+
+      <!-- Desc + Prec -->
+      <div class="info-row">
+        <div class="info-card">
+          <div class="info-card-head cyan"><span>📖</span><span id="lbl-desc">وصف المرض</span></div>
+          <div class="desc-body" id="descTxt">—</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-head green"><span>⚕️</span><span id="lbl-prec">الاحتياطات الموصى بها</span></div>
+          <ul class="prec-list" id="precList"></ul>
+        </div>
+      </div>
+
+      <div class="warn-bar">
+        <span>⚠️</span>
+        <span id="lbl-warn">هذا التشخيص للإرشاد فقط — يرجى استشارة طبيب متخصص دائماً</span>
+      </div>
+
+    </div>
+  </div><!-- /right -->
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  BILINGUAL STRINGS
+// ═══════════════════════════════════════════
+const STR = {
+  ar:{
+    hdrTitle:'نظام تشخيص الأمراض الذكي',
+    ptitle:'🔬 اختر الأعراض',
+    status:'النظام جاهز — اختر أعراضك للبدء',
+    totalLbl:'إجمالي الأعراض',
+    selLbl:'محدد',
+    symlist:'قائمة الأعراض',
+    dxBtn:'تشخيص الآن',
+    clrBtn:'مسح',
+    emptyTxt:'اختر الأعراض من القائمة يسار ثم اضغط "تشخيص الآن" لمعرفة التشخيص المحتمل',
+    resultLbl:'التشخيص المحتمل',
+    confLbl:'نسبة الثقة',
+    descLbl:'وصف المرض',
+    precLbl:'الاحتياطات الموصى بها',
+    matchedLbl:'الأعراض المطابقة',
+    warnLbl:'هذا التشخيص للإرشاد فقط — يرجى استشارة طبيب متخصص دائماً',
+    search:'ابحث عن عرَض...',
+    selectFirst:'الرجاء اختيار عرض واحد على الأقل',
+    sevHigh:'🔴 خطورة عالية — راجع الطبيب فوراً',
+    sevMed:'🟡 خطورة متوسطة — راقب الأعراض بعناية',
+    sevLow:'🟢 خطورة منخفضة — استرح وتابع حالتك',
+    catAll:'الكل',
+  },
+  en:{
+    hdrTitle:'AI Disease Diagnosis System',
+    ptitle:'🔬 Select Symptoms',
+    status:'System ready — select symptoms to begin',
+    totalLbl:'Total Symptoms',
+    selLbl:'Selected',
+    symlist:'Symptoms List',
+    dxBtn:'Diagnose Now',
+    clrBtn:'Clear',
+    emptyTxt:'Select symptoms from the list on the left, then click "Diagnose Now"',
+    resultLbl:'Possible Diagnosis',
+    confLbl:'Confidence',
+    descLbl:'Disease Description',
+    precLbl:'Recommended Precautions',
+    matchedLbl:'Matched Symptoms',
+    warnLbl:'This is for guidance only — always consult a qualified doctor',
+    search:'Search symptom...',
+    selectFirst:'Please select at least one symptom',
+    sevHigh:'🔴 HIGH — See a doctor immediately!',
+    sevMed:'🟡 MEDIUM — Monitor symptoms carefully.',
+    sevLow:'🟢 LOW — Rest and stay hydrated.',
+    catAll:'All',
+  }
+};
+
+let lang = 'ar';
+
+// ═══════════════════════════════════════════
+//  SYMPTOM TRANSLATIONS  (EN key → AR label)
+// ═══════════════════════════════════════════
+const SYM_AR = {
+  itching:'حكة',skin_rash:'طفح جلدي',nodal_skin_eruptions:'بثور جلدية عقدية',
+  continuous_sneezing:'عطس مستمر',shivering:'ارتجاف',chills:'قشعريرة',
+  joint_pain:'ألم في المفاصل',stomach_pain:'ألم في المعدة',acidity:'حموضة',
+  ulcers_on_tongue:'تقرحات على اللسان',muscle_wasting:'ضمور عضلي',vomiting:'قيء',
+  burning_micturition:'حرقة عند التبول',spotting_urination:'تبول مع نقاط دم',
+  fatigue:'إرهاق',weight_gain:'زيادة وزن',anxiety:'قلق',
+  cold_hands_and_feets:'برودة اليدين والقدمين',mood_swings:'تقلبات مزاجية',
+  weight_loss:'فقدان وزن',restlessness:'توتر وعدم راحة',lethargy:'خمول',
+  patches_in_throat:'بقع في الحلق',irregular_sugar_level:'تذبذب سكر الدم',
+  cough:'سعال',high_fever:'حمى شديدة',sunken_eyes:'غور العينين',
+  breathlessness:'ضيق التنفس',sweating:'تعرق',dehydration:'جفاف',
+  indigestion:'عسر هضم',headache:'صداع',yellowish_skin:'اصفرار الجلد',
+  dark_urine:'بول داكن',nausea:'غثيان',loss_of_appetite:'فقدان الشهية',
+  pain_behind_the_eyes:'ألم خلف العينين',back_pain:'ألم الظهر',
+  constipation:'إمساك',abdominal_pain:'ألم في البطن',diarrhoea:'إسهال',
+  mild_fever:'حمى خفيفة',yellow_urine:'بول أصفر',yellowing_of_eyes:'اصفرار العينين',
+  acute_liver_failure:'فشل كبدي حاد',fluid_overload:'احتباس سوائل',
+  swelling_of_stomach:'انتفاخ البطن',swelled_lymph_nodes:'تورم الغدد الليمفاوية',
+  malaise:'توعك عام',blurred_and_distorted_vision:'تشوش الرؤية',phlegm:'بلغم',
+  throat_irritation:'تهيج الحلق',redness_of_eyes:'احمرار العينين',
+  sinus_pressure:'ضغط الجيوب الأنفية',runny_nose:'رشح',congestion:'احتقان',
+  chest_pain:'ألم في الصدر',weakness_in_limbs:'ضعف في الأطراف',
+  fast_heart_rate:'تسارع ضربات القلب',pain_during_bowel_movements:'ألم عند التبرز',
+  pain_in_anal_region:'ألم في منطقة الشرج',bloody_stool:'براز دموي',
+  irritation_in_anus:'تهيج الشرج',neck_stiffness:'تصلب الرقبة',
+  word_slurring:'تعثر الكلام',knee_pain:'ألم الركبة',hip_joint_pain:'ألم مفصل الورك',
+  muscle_weakness:'ضعف عضلي',stiff_neck:'رقبة متصلبة',swelling_joints:'تورم المفاصل',
+  movement_stiffness:'تصلب الحركة',spinning_movements:'دوار',loss_of_balance:'فقدان التوازن',
+  unsteadiness:'عدم الثبات',weakness_of_one_body_side:'ضعف في أحد جانبي الجسم',
+  loss_of_smell:'فقدان حاسة الشم',bladder_discomfort:'انزعاج المثانة',
+  foul_smell_of_urine:'رائحة بول كريهة',continuous_feel_of_urine:'حاجة مستمرة للتبول',
+  passage_of_gases:'انطلاق الغازات',internal_itching:'حكة داخلية',
+  'toxic_look_(typhos)':'مظهر سُمّي (تيفوئيد)',depression:'اكتئاب',
+  irritability:'سرعة التهيج',muscle_pain:'ألم عضلي',altered_sensorium:'تغير الوعي',
+  red_spots_over_body:'بقع حمراء على الجسم',belly_pain:'ألم في البطن السفلي',
+  abnormal_menstruation:'دورة شهرية غير منتظمة',dischromic_patches:'بقع تغير لون',
+  watering_from_eyes:'دموع غزيرة',increased_appetite:'شهية مفرطة',polyuria:'كثرة التبول',
+  family_history:'تاريخ عائلي',mucoid_sputum:'بلغم مخاطي',rusty_sputum:'بلغم صدئ اللون',
+  lack_of_concentration:'صعوبة التركيز',visual_disturbances:'اضطرابات بصرية',
+  receiving_blood_transfusion:'تلقي نقل دم',receiving_unsterile_injections:'حقن غير معقمة',
+  coma:'غيبوبة',stomach_bleeding:'نزيف معدي',distention_of_abdomen:'انتفاخ البطن',
+  history_of_alcohol_consumption:'تاريخ تعاطي الكحول','fluid_overload.1':'احتباس سوائل شديد',
+  blood_in_sputum:'دم في البلغم',prominent_veins_on_calf:'وريد بارز في الساق',
+  palpitations:'خفقان القلب',painful_walking:'ألم عند المشي',
+  pus_filled_pimples:'بثور صديدية',blackheads:'رؤوس سوداء',scurring:'ندبات',
+  skin_peeling:'تقشر الجلد',silver_like_dusting:'قشور فضية',
+  small_dents_in_nails:'نقر صغيرة في الأظافر',inflammatory_nails:'أظافر ملتهبة',
+  blister:'فقاعات',red_sore_around_nose:'قروح حمراء حول الأنف',
+  yellow_crust_ooze:'قشور صفراء نازة',
+  // NEW SYMPTOMS ADDED
+  dizziness:'دوخة',neck_pain:'ألم الرقبة',extra_marital_contacts:'تاريخ علاقات خارج الزواج',
+  obesity:'سمنة',thirst:'عطش',excessive_hunger:'جوع مفرط',
+  // extra new
+  sore_throat:'التهاب الحلق', ear_pain:'ألم في الأذن',
+  hearing_loss:'فقدان السمع', tinnitus:'طنين الأذن',
+  dry_mouth:'جفاف الفم', excessive_thirst:'عطش شديد',
+  frequent_urination:'تكرار التبول', night_sweats:'تعرق ليلي',
+  loss_of_consciousness:'فقدان الوعي', confusion:'ارتباك وتشوش ذهني',
+  memory_loss:'فقدان الذاكرة', tremor:'رعشة',
+  difficulty_swallowing:'صعوبة البلع', hoarseness:'بحة في الصوت',
+  shortness_of_breath_on_exertion:'ضيق تنفس عند المجهود',
+  swollen_ankles:'تورم الكاحلين', leg_cramps:'تشنجات الساق',
+  hair_loss:'تساقط الشعر', brittle_nails:'هشاشة الأظافر',
+  dry_skin:'جفاف الجلد', excessive_sweating:'تعرق مفرط',
+  loss_of_taste:'فقدان حاسة التذوق', facial_pain:'ألم في الوجه',
+  jaw_pain:'ألم الفك', shoulder_pain:'ألم الكتف',
+  wrist_pain:'ألم الرسغ', finger_swelling:'تورم الأصابع',
+  eye_discharge:'إفرازات من العين', sensitivity_to_light:'حساسية للضوء',
+  sensitivity_to_sound:'حساسية للصوت', numbness:'تخدر وخزيز',
+  burning_sensation:'إحساس بالحرق', night_blindness:'عشى الليل',
+  blood_in_urine:'دم في البول', painful_urination:'ألم عند التبول',
+  lower_back_pain:'ألم أسفل الظهر', groin_pain:'ألم الفخذ',
+  testicular_pain:'ألم الخصية', menstrual_pain:'ألم الدورة الشهرية',
+  vaginal_discharge:'إفرازات مهبلية', breast_pain:'ألم الثدي',
+  nipple_discharge:'إفراز من الحلمة',
+  swollen_glands:'تورم الغدد',fever_with_rash:'حمى مع طفح',
+  red_eyes:'احمرار العيون', eye_pain:'ألم في العين',
+  skin_yellowing:'اصفرار الجلد', jaundice:'يرقان',
+  pale_skin:'شحوب الجلد', bruising_easily:'كدمات سهلة',
+  blood_in_stool:'دم في البراز', dark_stools:'براز داكن',
+  frequent_infections:'تكرار العدوى', slow_healing:'تأخر التئام الجروح',
+  cold_intolerance:'عدم تحمل البرد', heat_intolerance:'عدم تحمل الحر',
+  bloating:'انتفاخ',
+};
+
+// ═══════════════════════════════════════════
+//  DISEASE TRANSLATIONS
+// ═══════════════════════════════════════════
+const DISEASE_AR = {
+  'Fungal infection':'عدوى فطرية',
+  'Allergy':'حساسية',
+  'GERD':'ارتداد معدي مريئي',
+  'Chronic cholestasis':'ركود صفراوي مزمن',
+  'Drug Reaction':'تفاعل دوائي',
+  'Peptic ulcer disease':'قرحة هضمية',
+  'AIDS':'الإيدز (نقص المناعة المكتسب)',
+  'Diabetes':'السكري',
+  'Gastroenteritis':'التهاب المعدة والأمعاء',
+  'Bronchial Asthma':'ربو قصبي',
+  'Hypertension':'ارتفاع ضغط الدم',
+  'Migraine':'الشقيقة (الصداع النصفي)',
+  'Cervical spondylosis':'تنكس العمود الفقري العنقي',
+  'Paralysis (brain hemorrhage)':'شلل (نزيف دماغي)',
+  'Jaundice':'اليرقان',
+  'Malaria':'الملاريا',
+  'Chicken pox':'جدري الماء',
+  'Dengue':'حمى الضنك',
+  'Typhoid':'حمى التيفوئيد',
+  'Hepatitis A':'التهاب الكبد أ',
+  'Hepatitis B':'التهاب الكبد ب',
+  'Hepatitis C':'التهاب الكبد ج',
+  'Hepatitis D':'التهاب الكبد د',
+  'Hepatitis E':'التهاب الكبد هـ',
+  'Alcoholic hepatitis':'التهاب الكبد الكحولي',
+  'Tuberculosis':'السل الرئوي',
+  'Common Cold':'نزلة البرد',
+  'Pneumonia':'الالتهاب الرئوي',
+  'Dimorphic hemmorhoids (piles)':'البواسير (الناسور الشرجي)',
+  'Heart attack':'نوبة قلبية',
+  'Varicose veins':'الدوالي',
+  'Hypothyroidism':'قصور الغدة الدرقية',
+  'Hyperthyroidism':'فرط نشاط الغدة الدرقية',
+  'Hypoglycemia':'انخفاض سكر الدم',
+  'Osteoarthritis':'هشاشة العظام / التهاب المفاصل التنكسي',
+  'Arthritis':'التهاب المفاصل',
+  'Vertigo / Paroxysmal Positional Vertigo':'الدوار / دوار الأوضاع الانتيابي الحميد',
+  'Acne':'حب الشباب',
+  'Urinary tract infection':'التهاب المسالك البولية',
+  'Psoriasis':'الصدفية',
+  'Impetigo':'القوباء (عدوى جلدية)',
+  // NEW 50 DISEASES
+  'Sinusitis':'التهاب الجيوب الأنفية',
+  'Otitis Media':'التهاب الأذن الوسطى',
+  'Conjunctivitis':'التهاب الملتحمة (رمد)',
+  'Tonsillitis':'التهاب اللوزتين',
+  'Laryngitis':'التهاب الحنجرة',
+  'Bronchitis':'التهاب الشعب الهوائية',
+  'Pleuritis':'التهاب الجنبة',
+  'Pericarditis':'التهاب التامور',
+  'Anemia':'فقر الدم',
+  'Iron Deficiency Anemia':'فقر الدم بنقص الحديد',
+  'Kidney Stones':'حصى الكلى',
+  'Gallstones':'حصى المرارة',
+  'Appendicitis':'التهاب الزائدة الدودية',
+  'Pancreatitis':'التهاب البنكرياس',
+  'Diverticulitis':'التهاب الرتج',
+  'Irritable Bowel Syndrome':'متلازمة القولون العصبي',
+  'Celiac Disease':'مرض الاضطرابات الهضمية (الداء الزلاقي)',
+  'Gastric Ulcer':'قرحة المعدة',
+  'Crohns Disease':'مرض كرون',
+  'Ulcerative Colitis':'التهاب القولون التقرحي',
+  'Gout':'النقرس',
+  'Rheumatoid Arthritis':'التهاب المفاصل الروماتويدي',
+  'Lupus':'الذئبة الحمامية',
+  'Multiple Sclerosis':'التصلب المتعدد',
+  'Parkinsons Disease':'مرض باركنسون',
+  'Epilepsy':'الصرع',
+  'Meningitis':'التهاب السحايا',
+  'Encephalitis':'التهاب الدماغ',
+  'Stroke':'السكتة الدماغية',
+  'Deep Vein Thrombosis':'تجلط الأوردة العميقة',
+  'Pulmonary Embolism':'الانسداد الرئوي',
+  'Coronary Artery Disease':'مرض الشريان التاجي',
+  'Atrial Fibrillation':'الرجفان الأذيني',
+  'Heart Failure':'قصور القلب',
+  'Chronic Kidney Disease':'مرض الكلى المزمن',
+  'Nephrotic Syndrome':'المتلازمة الكلوية',
+  'Prostatitis':'التهاب البروستاتا',
+  'Ovarian Cyst':'كيس المبيض',
+  'Endometriosis':'بطانة الرحم المهاجرة',
+  'Polycystic Ovary Syndrome':'متلازمة المبيض المتعدد الكيسات',
+  'Eczema':'الأكزيما (التهاب الجلد التأتبي)',
+  'Rosacea':'الوردية الجلدية',
+  'Shingles':'الهربس النطاقي (الحزام الناري)',
+  'Measles':'الحصبة',
+  'Mumps':'النكاف',
+  'Rubella':'الحصبة الألمانية',
+  'Scarlet Fever':'الحمى القرمزية',
+  'Leptospirosis':'داء البريميات',
+  'Scabies':'الجرب',
+  'Ringworm':'سعفة الرأس (قراع)',
+};
+
+// ═══════════════════════════════════════════
+//  DISEASE DESCRIPTIONS (Arabic)
+// ═══════════════════════════════════════════
+const DESC_AR = {
+  'Fungal infection':'عدوى جلدية تسببها الفطريات، تتميز بظهور بقع متقشرة ومثيرة للحكة على الجلد. تنتشر في المناطق الرطبة من الجسم وتستجيب جيداً للعلاج بالمضادات الفطرية الموضعية.',
+  'Allergy':'استجابة مبالغ فيها من الجهاز المناعي تجاه مادة غريبة (مسببة الحساسية) كحبوب اللقاح والغبار والأطعمة معينة، مما يسبب أعراضاً متعددة تتراوح بين العطس والطفح الجلدي وضيق التنفس.',
+  'GERD':'حالة مزمنة تعود فيها حمض المعدة إلى المريء، مسببةً حرقة وانزعاجاً مستمراً، وقد تؤدي مع الوقت إلى التهاب جدار المريء أو تقرحاته.',
+  'Chronic cholestasis':'اضطراب في تدفق الصفراء من الكبد إلى الأمعاء، يؤدي إلى تراكم المواد الصفراوية في الدم مسبباً اصفرار الجلد والحكة وتغير لون البراز.',
+  'Drug Reaction':'رد فعل غير مرغوب به يحدث نتيجة تناول دواء معين، قد يظهر على شكل طفح جلدي أو حكة أو أعراض أشد خطورة كالحساسية المفرطة الصدمية.',
+  'Peptic ulcer disease':'تقرحات تنشأ في بطانة المعدة أو الاثني عشر أو المريء نتيجة تآكل طبقة المخاط الواقية، وغالباً ما تسببها بكتيريا الملوية البوابية أو المسكنات غير الستيرويدية.',
+  'AIDS':'مرحلة متقدمة من الإصابة بفيروس نقص المناعة البشري (HIV) يتلف فيها الجهاز المناعي بشكل شديد، مما يجعل الجسم عرضة للعدوى الانتهازية والأورام.',
+  'Diabetes':'مرض استقلابي مزمن يتميز بارتفاع نسبة السكر في الدم، إما بسبب قصور إفراز الأنسولين (النوع الأول) أو مقاومة الجسم له (النوع الثاني)، وقد يؤدي إلى مضاعفات خطيرة في القلب والكلى والأعصاب.',
+  'Gastroenteritis':'التهاب يصيب المعدة والأمعاء الدقيقة، يسببه في الغالب فيروسات أو بكتيريا، ويتجلى بالقيء والإسهال والألم البطني مع احتمالية الجفاف.',
+  'Bronchial Asthma':'مرض مزمن في الجهاز التنفسي تتضيق فيه القصبات الهوائية وتنتج مخاطاً زائداً، مما يسبب نوبات متكررة من ضيق التنفس والأزيز والسعال.',
+  'Hypertension':'ارتفاع مزمن في ضغط الدم يتجاوز 140/90 ملم زئبق، يشكّل عامل خطر رئيسياً لأمراض القلب والسكتة الدماغية والفشل الكلوي إذا لم يُعالج.',
+  'Migraine':'اضطراب عصبي يسبب نوبات صداع شديدة نابضة عادةً في أحد جانبي الرأس، وكثيراً ما يصاحبها غثيان وتحسس من الضوء والصوت، وقد تسبقها اضطرابات بصرية.',
+  'Cervical spondylosis':'تدهور مزمن في غضاريف ومفاصل عنق العمود الفقري نتيجة الشيخوخة، يسبب ألماً وتصلباً في الرقبة مع احتمال انتشار الألم إلى الذراعين.',
+  'Paralysis (brain hemorrhage)':'فقدان القدرة الحركية في جزء من الجسم نتيجة نزيف داخل الدماغ يضغط على الخلايا العصبية أو يدمرها، ويستدعي تدخلاً طارئاً فورياً.',
+  'Jaundice':'اصفرار الجلد وبياض العينين والأغشية المخاطية نتيجة ارتفاع مستوى البيليروبين في الدم، وهو عرَض وليس مرضاً بحد ذاته يشير إلى خلل في الكبد أو القنوات الصفراوية.',
+  'Malaria':'مرض طفيلي خطير تنقله أنثى بعوضة الأنوفيلة، يصيب خلايا الدم الحمراء ويسبب نوبات متكررة من الحمى الشديدة والقشعريرة والتعرق، وقد يكون مميتاً إذا لم يُعالج.',
+  'Chicken pox':'عدوى فيروسية شديدة العدوى يسببها فيروس الحماق والنطاقي (VZV)، تتميز بطفح جلدي مثير للحكة يتطور إلى فقاعات ثم جلبة، ويُعدّ لقاح الجدري من أفضل وسائل الوقاية.',
+  'Dengue':'حمى فيروسية تنقلها بعوضة الزاعجة المصرية، تسبب حمى مفاجئة شديدة مع صداع خلف العينين وآلام مفاصل وطفح جلدي، وقد تتطور إلى حمى ضنك نزفية.',
+  'Typhoid':'عدوى بكتيرية خطيرة تسببها السالمونيلا التيفية، تنتقل عبر الماء والطعام الملوثين، وتسبب حمى مستمرة وصداعاً وآلاماً بطنية وقد تؤدي إلى نزيف معوي.',
+  'Hepatitis A':'التهاب كبد فيروسي حاد تسببه فيروس التهاب الكبد A، ينتقل عبر الطعام والماء الملوثين، وعادةً ما يشفى من تلقاء نفسه خلال أسابيع دون أن يسبب أضراراً دائمة.',
+  'Hepatitis B':'عدوى فيروسية خطيرة تصيب الكبد وتنتقل عبر الدم والسوائل الجنسية، قد تتحول إلى مزمنة وتسبب تليف الكبد أو سرطانه إذا لم تُعالج. يتوفر لقاح فعال.',
+  'Hepatitis C':'عدوى فيروسية تصيب الكبد وتنتقل أساساً عبر الدم، وتتحول في معظم الحالات إلى عدوى مزمنة قد تفضي إلى تليف الكبد، لكن تتوفر اليوم أدوية فعالة جداً للشفاء.',
+  'Hepatitis D':'التهاب الكبد D لا يحدث إلا في وجود فيروس التهاب الكبد B معاً، وهو أشد خطورة من الإصابة بالتهاب الكبد B منفرداً، لأنه يُسرّع تطور المرض.',
+  'Hepatitis E':'التهاب كبد فيروسي ينتقل عبر الماء الملوث بالبراز، يشبه التهاب الكبد A في تطوره وعادةً يزول بمفرده، لكنه خطير بشكل خاص للحوامل.',
+  'Alcoholic hepatitis':'التهاب حاد في الكبد ناجم عن الإفراط في تناول الكحول لفترات طويلة، يتجلى بالألم البطني واليرقان وانتفاخ البطن، وقد يكون مميتاً في حالاته الحادة.',
+  'Tuberculosis':'مرض بكتيري خطير تسببه المتفطرة السلية (Mycobacterium tuberculosis) يصيب الرئتين أساساً، ينتقل عبر الهواء، وعلاجه يتطلب أدوية متعددة لأشهر طويلة.',
+  'Common Cold':'عدوى فيروسية شائعة تصيب الجهاز التنفسي العلوي وتسببها فيروسات متعددة أبرزها الفيروس الأنفي، أعراضها خفيفة عادةً وتزول خلال أسبوع إلى عشرة أيام.',
+  'Pneumonia':'التهاب يصيب الحويصلات الهوائية في الرئة ويملؤها بالسائل أو الصديد، مما يسبب الحمى والسعال وضيق التنفس، وقد يكون خطيراً على كبار السن ومن يعانون أمراضاً مزمنة.',
+  'Dimorphic hemmorhoids (piles)':'تضخم وانتفاخ الأوردة في منطقة المستقيم والشرج، مما يسبب الألم والحكة ونزيف البراز، وقد تكون داخلية أو خارجية.',
+  'Heart attack':'انسداد مفاجئ في أحد شرايين القلب يقطع الدم عن عضلة القلب ويسبب تلفها، وهي حالة طارئة تستدعي الإسعاف الفوري لإنقاذ الحياة.',
+  'Varicose veins':'أوردة متوسعة ومتعرجة تظهر عادةً في الساقين نتيجة ضعف صمامات الأوردة وعدم كفاءتها في دفع الدم للأعلى، مسببةً الثقل والألم وتغيراً في لون الجلد.',
+  'Hypothyroidism':'حالة تنتج فيها الغدة الدرقية كميات غير كافية من الهرمونات الضرورية لتنظيم الأيض، مسببةً الإرهاق وزيادة الوزن والإمساك وبرودة الجسم والاكتئاب.',
+  'Hyperthyroidism':'حالة تفرز فيها الغدة الدرقية هرموناتها بكميات زائدة، مما يرفع معدل الأيض ويسبب فقدان الوزن وتسارع ضربات القلب والتعرق المفرط والتوتر.',
+  'Hypoglycemia':'انخفاض مستوى السكر في الدم عن الحد الطبيعي (أقل من 70 مجم/ديسيلتر)، مما يسبب التعرق والدوار والخفقان والارتباك وقد يصل إلى فقدان الوعي.',
+  'Osteoarthritis':'مرض مفصلي تنكسي يحدث فيه تآكل تدريجي للغضروف المفصلي الواقي، مسبباً الألم والتيبس وتورم المفاصل، ويصيب عادةً الركبتين والوركين والعمود الفقري.',
+  'Arthritis':'التهاب يصيب مفصلاً أو أكثر مسبباً الألم والتيبس والتورم، وله أشكال عديدة أشهرها التهاب المفاصل الروماتويدي والنقرس والتهاب المفاصل الصدفي.',
+  'Vertigo / Paroxysmal Positional Vertigo':'اضطراب حركي يتسبب في إحساس مفاجئ بأن الجسم أو المحيط يدور، وكثيراً ما يُحفّز بتغيير وضعية الرأس، ومعظم حالاته تزول بمناورات علاجية بسيطة.',
+  'Acne':'حالة جلدية شائعة تحدث عند انسداد بصيلات الشعر بالزيوت والخلايا الميتة، مما يؤدي إلى ظهور حبوب ورؤوس سوداء وبثور، وكثيراً ما تبدأ في مرحلة المراهقة.',
+  'Urinary tract infection':'عدوى بكتيرية تصيب أي جزء من الجهاز البولي (الكلى والحالب والمثانة والإحليل)، أكثر شيوعاً عند النساء، وتسبب حرقة عند التبول ورغبة ملحّة متكررة فيه.',
+  'Psoriasis':'مرض جلدي مناعي ذاتي مزمن يتسبب في تسارع دورة حياة خلايا الجلد، مما يؤدي إلى تراكمها وتشكيل بقع حمراء متقشرة فضية اللون مصحوبة بحكة وأحياناً ألم.',
+  'Impetigo':'عدوى جلدية بكتيرية شديدة العدوى تسببها المكورات العنقودية أو العقدية، تظهر على شكل قروح حمراء تنفجر وتتشكل منها قشور عسلية اللون، وتصيب الأطفال أكثر.',
+  'Sinusitis':'التهاب في بطانة الجيوب الأنفية غالباً ما يصاحب نزلات البرد أو الحساسية، يسبب ضغطاً وألماً في منطقة الوجه وانسداداً أنفياً وإفرازات.',
+  'Otitis Media':'التهاب يصيب الأذن الوسطى، شائع عند الأطفال، يسبب ألماً في الأذن وحمى وأحياناً صعوبة في السمع ويحتاج في الغالب إلى مضادات حيوية.',
+  'Conjunctivitis':'التهاب الغشاء الشفاف المبطن لجفن العين ومقلتها، يسببه فيروس أو بكتيريا أو حساسية، ويتميز بالاحمرار وإفراز دموع أو قيح وحكة.',
+  'Tonsillitis':'التهاب يصيب اللوزتين في الحلق، يسبب ألماً شديداً عند البلع وحمى وتضخم الغدد الليمفاوية في الرقبة، وقد يكون بكتيرياً أو فيروسياً.',
+  'Laryngitis':'التهاب يصيب الحنجرة يؤدي إلى بحة الصوت أو فقدانه المؤقت، يصاحبه ألم في الحلق وسعال وأحياناً ضيق تنفس.',
+  'Bronchitis':'التهاب يصيب الشعب الهوائية مسبباً سعالاً مستمراً مع بلغم، قد يكون حاداً بسبب عدوى أو مزمناً بسبب التدخين لسنوات طويلة.',
+  'Pleuritis':'التهاب الغشاء المحيط بالرئتين، يسبب ألماً حاداً في الصدر يزداد مع التنفس والسعال، وقد ينتج عن عدوى أو أمراض مناعية.',
+  'Pericarditis':'التهاب يصيب التامور (الغشاء المحيط بالقلب) يسبب ألماً حاداً في الصدر يتحسن بالجلوس والانحناء للأمام، وقد يكون ناتجاً عن فيروس أو مرض مناعي.',
+  'Anemia':'انخفاض في عدد كريات الدم الحمراء أو نسبة الهيموغلوبين، مما يقلل قدرة الدم على نقل الأكسجين ويسبب إرهاقاً وشحوباً وضيق تنفس.',
+  'Iron Deficiency Anemia':'أكثر أنواع فقر الدم شيوعاً، ينتج عن نقص الحديد اللازم لإنتاج الهيموغلوبين، مسبباً إرهاقاً شديداً وشحوباً وهشاشة الأظافر وسقوط الشعر.',
+  'Kidney Stones':'تكتلات صلبة تتشكل داخل الكلى من ترسب المعادن، تسبب ألماً شديداً جداً في الظهر والجانب ينتشر إلى الفخذ، مع دم في البول وغثيان.',
+  'Gallstones':'حصوات تتشكل في المرارة من الكوليسترول أو البيليروبين، قد تسبب ألماً شديداً في أعلى يمين البطن خاصة بعد تناول الأطعمة الدهنية.',
+  'Appendicitis':'التهاب حاد في الزائدة الدودية يبدأ بألم حول السرة ثم ينتقل لأسفل يمين البطن، ويستدعي تدخلاً جراحياً عاجلاً لتجنب الانفجار.',
+  'Pancreatitis':'التهاب في البنكرياس يسبب ألماً شديداً في أعلى البطن ينتشر إلى الظهر، مع غثيان وقيء وحمى، وقد يكون حاداً خطيراً أو مزمناً.',
+  'Diverticulitis':'التهاب في حويصلات صغيرة تتشكل في جدار القولون، يسبب ألماً في أسفل يسار البطن مع حمى وتغيرات في عادات التبرز.',
+  'Irritable Bowel Syndrome':'اضطراب وظيفي مزمن في الأمعاء الغليظة يسبب آلاماً بطنية متكررة مع انتفاخ وإسهال أو إمساك أو كليهما، دون وجود ضرر عضوي.',
+  'Celiac Disease':'مرض مناعي ذاتي يحدث فيه رد فعل ضد الغلوتين (بروتين في القمح والشعير والجاودار) مما يتلف بطانة الأمعاء الدقيقة ويعيق امتصاص المغذيات.',
+  'Gastric Ulcer':'تآكل في بطانة المعدة يسبب ألماً حارقاً في منتصف البطن، يزداد عادةً أثناء الأكل، وقد يؤدي إلى نزيف خطير إذا لم يُعالج.',
+  'Crohns Disease':'مرض التهابي مزمن يصيب أي جزء من الجهاز الهضمي (من الفم إلى الشرج) يسبب آلاماً بطنية وإسهالاً شديداً وفقدان وزن وإرهاقاً.',
+  'Ulcerative Colitis':'مرض التهابي مزمن يقتصر على القولون والمستقيم، يسبب تقرحات وإسهالاً دموياً ومخاطياً وآلاماً بطنية شديدة.',
+  'Gout':'مرض يسببه تراكم بلورات حمض البوليك في المفاصل، يتميز بنوبات مفاجئة من الألم الشديد والتورم والاحمرار، وغالباً ما يصيب إبهام القدم.',
+  'Rheumatoid Arthritis':'مرض مناعي ذاتي مزمن يهاجم فيه الجهاز المناعي بطانة المفاصل مسبباً التهاباً مؤلماً وتورماً وقد يؤدي إلى تشوهات دائمة.',
+  'Lupus':'مرض مناعي ذاتي مزمن يهاجم فيه الجهاز المناعي أنسجة الجسم المختلفة، يظهر بطفح على شكل فراشة على الوجه وآلام مفاصل وإرهاق شديد.',
+  'Multiple Sclerosis':'مرض مزمن يصيب الجهاز العصبي المركزي، يتلف فيه الغلاف العازل للأعصاب (الميالين) مسبباً أعراضاً متنوعة كالخدر وضعف العضلات واضطرابات البصر.',
+  'Parkinsons Disease':'مرض عصبي تدريجي يصيب خلايا الدماغ المنتجة للدوبامين، يتميز بالرعشة وبطء الحركة وتصلب العضلات وصعوبة التوازن.',
+  'Epilepsy':'اضطراب عصبي يسبب نوبات متكررة نتيجة نشاط كهربائي غير منتظم في الدماغ، تتراوح بين نوبات غياب خفيفة وتشنجات عامة.',
+  'Meningitis':'التهاب الأغشية المحيطة بالدماغ والحبل الشوكي، يسبب صداعاً شديداً وتصلب الرقبة وحمى وحساسية للضوء، وهو حالة طارئة تستدعي علاجاً فورياً.',
+  'Encephalitis':'التهاب يصيب الدماغ مباشرة غالباً بسبب فيروس، يسبب حمى وصداعاً وارتباكاً وتشنجات وقد يؤدي إلى غيبوبة.',
+  'Stroke':'انقطاع مفاجئ في تدفق الدم إلى جزء من الدماغ إما بانسداد أو نزيف، يسبب شللاً مفاجئاً في نصف الجسم وتعثر الكلام وتدلي الوجه.',
+  'Deep Vein Thrombosis':'تكون جلطة دموية في وريد عميق عادةً في الساق، يسبب تورماً وألماً واحمراراً، وقد ينتقل إلى الرئة مسبباً انسداداً رئوياً خطيراً.',
+  'Pulmonary Embolism':'انسداد مفاجئ في أحد الشرايين الرئوية عادةً بجلطة قادمة من ساق، يسبب ضيق تنفس مفاجئاً وألماً في الصدر وقد يكون مميتاً.',
+  'Coronary Artery Disease':'تضيق أو انسداد في الشرايين التاجية المغذية للقلب بسبب تراكم الدهون والكوليسترول، يسبب ألماً في الصدر وقد يؤدي إلى نوبة قلبية.',
+  'Atrial Fibrillation':'اضطراب في إيقاع القلب يتميز بنبضات سريعة وغير منتظمة، يسبب خفقاناً وضيق تنفس وإرهاقاً، ويرفع خطر السكتة الدماغية.',
+  'Heart Failure':'حالة مزمنة لا يستطيع فيها القلب ضخ الدم بكفاءة كافية لتلبية احتياجات الجسم، يسبب ضيق تنفس وتورم القدمين والإرهاق.',
+  'Chronic Kidney Disease':'تراجع تدريجي في وظيفة الكلى على مدى أشهر أو سنوات، يؤدي إلى تراكم الفضلات في الدم وارتفاع ضغط الدم وفقر الدم.',
+  'Nephrotic Syndrome':'اضطراب في الكلى يتسم بتسريب كميات كبيرة من البروتين في البول مما يسبب تورماً شديداً وانخفاض مستوى البروتين في الدم.',
+  'Prostatitis':'التهاب في الغدة البروستاتية يسبب ألماً في الحوض وأسفل الظهر وصعوبة أو ألماً عند التبول أو القذف، وقد يكون بكتيرياً أو غير بكتيري.',
+  'Ovarian Cyst':'أكياس مملوءة بسائل تتشكل على أحد المبيضين، معظمها غير ضار ويختفي وحده، لكن بعضها يسبب ألماً في الحوض وانتفاخاً وتغيرات في الدورة.',
+  'Endometriosis':'نمو نسيج مشابه لبطانة الرحم خارجه، يسبب آلاماً شديدة في الدورة الشهرية وألم الحوض وقد يؤثر على الخصوبة.',
+  'Polycystic Ovary Syndrome':'اضطراب هرموني شائع عند النساء يتميز بعدم انتظام الدورة الشهرية وارتفاع هرمونات الذكورة والأكياس على المبيض.',
+  'Eczema':'التهاب جلدي مزمن يسبب حكة شديدة وجفافاً واحمراراً وتشققاً في الجلد، وغالباً ما يرتبط بالحساسية وأمراض المناعة الذاتية.',
+  'Rosacea':'مرض جلدي مزمن يصيب بشرة الوجه مسبباً احمراراً دائماً وظهور أوعية دموية دقيقة وأحياناً بثوراً، ويحتاج إلى إدارة طويلة الأمد.',
+  'Shingles':'مرض فيروسي يسببه إعادة تنشيط فيروس الحماق الكامن في الجسم، يظهر على شكل طفح مؤلم وتقرحات تسير على امتداد عصب معين، وأكثر شيوعاً عند كبار السن.',
+  'Measles':'مرض فيروسي شديد العدوى يسبب حمى وسيلان الأنف وسعالاً وطفحاً جلدياً أحمر ينتشر من الوجه لبقية الجسم، ويُقى منه باللقاح.',
+  'Mumps':'مرض فيروسي يصيب الغدد اللعابية مسبباً تورماً مؤلماً في الخدين وأسفل الأذنين، مع حمى وصداع، ويُقى منه باللقاح الثلاثي.',
+  'Rubella':'مرض فيروسي معدٍ يسبب طفحاً ورديً خفيفاً وحمى وانتفاخاً في الغدد، وهو خطير جداً على الجنين إذا أصيبت به الأم الحامل.',
+  'Scarlet Fever':'مرض بكتيري يسببه عقديات A، يتميز بحمى وألم الحلق وطفح جلدي خشن يشبه ورق الصنفرة، وأكثر شيوعاً عند الأطفال.',
+  'Leptospirosis':'عدوى بكتيرية تنتقل عن طريق بول الحيوانات (خاصة الجرذان)، تسبب حمى وصداعاً وآلاماً عضلية وقد تتطور إلى فشل كبدي وكلوي.',
+  'Scabies':'عدوى جلدية تسببها حلم صغير جداً يحفر أنفاقاً تحت الجلد، يسبب حكة شديدة جداً خاصة ليلاً وطفحاً جلدياً، وهو شديد العدوى.',
+  'Ringworm':'عدوى فطرية جلدية تصيب الجلد والفروة والأظافر، تظهر على شكل بقع دائرية حمراء متقشرة ذات حواف مرتفعة وتسبب حكة.',
+};
+
+// ═══════════════════════════════════════════
+//  PRECAUTIONS TRANSLATIONS (Arabic)
+// ═══════════════════════════════════════════
+const PREC_AR = {
+  'Fungal infection':['استحم مرتين يومياً','استخدم ماء الديتول أو النيم للاستحمام','حافظ على جفاف المنطقة المصابة','ارتدِ ملابس نظيفة'],
+  'Allergy':['ضع كريم الكالامين','غطِ المنطقة بضمادة','استخدم الثلج لتخفيف الحكة','تجنب ملامسة مسببات الحساسية'],
+  'GERD':['تجنب الأطعمة الدهنية والحارة','تجنب الاستلقاء مباشرة بعد الأكل','حافظ على وزن صحي','مارس الرياضة بانتظام'],
+  'Chronic cholestasis':['استحمم بالماء البارد','استخدم دواء مضاد للحكة','راجع الطبيب','تناول غذاءً صحياً'],
+  'Drug Reaction':['توقف عن استخدام الدواء المسبب','راجع أقرب مستشفى','أخبر طبيبك بكل الأدوية التي تتناولها','تابع حالتك'],
+  'Peptic ulcer disease':['تجنب الأطعمة الدهنية والحارة','تناول أطعمة بروبيوتيك','تجنب الحليب','قلل من الكحول'],
+  'AIDS':['تجنب الجروح المفتوحة','استخدم معدات الوقاية الشخصية','راجع الطبيب باستمرار','التزم بالعلاج المضاد للفيروسات'],
+  'Diabetes':['اتبع نظاماً غذائياً متوازناً','مارس الرياضة يومياً','راجع طبيبك بانتظام','راقب مستوى السكر يومياً'],
+  'Gastroenteritis':['توقف عن الطعام الصلب مؤقتاً','اشرب رشفات صغيرة من الماء','استرح جيداً','أعد تناول الطعام تدريجياً'],
+  'Bronchial Asthma':['ارتدِ ملابس فضفاضة','تنفس بعمق','ابتعد عن المحفزات','اطلب المساعدة الطبية عند الحاجة'],
+  'Hypertension':['مارس التأمل والاسترخاء','قلل الملح في طعامك','اخفض مستوى الضغط النفسي','احصل على قسط كافٍ من النوم'],
+  'Migraine':['مارس التأمل','قلل التوتر','استخدم نظارة مستقطبة في الشمس','راجع الطبيب'],
+  'Cervical spondylosis':['استخدم كمادات ساخنة أو باردة','مارس تمارين الرقبة','تناول مسكناً بدون وصفة','راجع الطبيب'],
+  'Paralysis (brain hemorrhage)':['اتصل بالإسعاف فوراً','مارس العلاج الطبيعي','اتبع نظاماً غذائياً صحياً','راجع الطبيب بانتظام'],
+  'Jaundice':['اشرب 8 أكواب ماء يومياً أو أكثر','تناول حليب الشوك (ثيستل)','كل فواكه وأطعمة غنية بالألياف','خذ الأدوية الموصوفة'],
+  'Malaria':['راجع أقرب مستشفى','تجنب الأطعمة الدهنية','تجنب اللحوم غير المطبوخة جيداً','احمِ نفسك من البعوض'],
+  'Chicken pox':['استحم بماء النيم','تناول أوراق النيم','احصل على اللقاح','تجنب الأماكن العامة'],
+  'Dengue':['اشرب عصير أوراق البابايا','تجنب الأطعمة الدهنية والحارة','احمِ نفسك من البعوض','احتفظ بترطيب جيد'],
+  'Typhoid':['تناول خضراوات عالية السعرات','العلاج بالمضادات الحيوية','راجع الطبيب','خذ الأدوية الموصوفة'],
+  'Hepatitis A':['راجع أقرب مستشفى','اغسل يديك جيداً دائماً','تجنب الأطعمة الدهنية والحارة','خذ الأدوية الموصوفة'],
+  'Hepatitis B':['راجع أقرب مستشفى','احصل على التطعيم','تناول غذاءً صحياً','التزم بالعلاج'],
+  'Hepatitis C':['راجع أقرب مستشفى','احصل على التطعيم','تناول غذاءً صحياً','التزم بالعلاج'],
+  'Hepatitis D':['راجع الطبيب','خذ الأدوية الموصوفة','تناول غذاءً صحياً','تابع حالتك باستمرار'],
+  'Hepatitis E':['توقف عن تناول الكحول','استرح جيداً','راجع الطبيب','خذ الأدوية الموصوفة'],
+  'Alcoholic hepatitis':['توقف عن تناول الكحول كلياً','راجع الطبيب','خذ الأدوية الموصوفة','تابع وظائف الكبد دورياً'],
+  'Tuberculosis':['غطِ فمك عند السعال','راجع الطبيب','التزم بدورة الأدوية كاملة','استرح جيداً'],
+  'Common Cold':['اشرب مشروبات غنية بفيتامين C','استنشق بخار الماء','تجنب الأطعمة الباردة','راقب درجة الحرارة'],
+  'Pneumonia':['راجع الطبيب فوراً','خذ الأدوية الموصوفة','استرح جيداً','تابع حالتك باستمرار'],
+  'Dimorphic hemmorhoids (piles)':['تجنب الأطعمة الدهنية والحارة','استخدم حمامات الجلوس الدافئة','استخدم مراهم البواسير','تناول ألياف كافية'],
+  'Heart attack':['اتصل بالإسعاف فوراً','امضغ الأسبرين أو ابتلعه','ابقَ هادئاً','أبلغ أفراد العائلة'],
+  'Varicose veins':['استلقِ ورفع ساقيك للأعلى','استخدم مراهم الأوعية','استخدم جوارب ضغط','لا تقف ثابتاً لفترات طويلة'],
+  'Hypothyroidism':['قلل التوتر','مارس الرياضة بانتظام','تناول غذاءً متوازناً','احصل على نوم كافٍ'],
+  'Hyperthyroidism':['تناول غذاءً صحياً','احصل على تدليك مريح','استخدم بلسم الليمون','استشر طبيبك حول العلاج المناسب'],
+  'Hypoglycemia':['استلقِ على جانبك','تحقق من نبضك','اشرب مشروباً سكرياً','راجع الطبيب'],
+  'Osteoarthritis':['تناول أسيتامينوفين','راجع أقرب مستشفى','تابع العلاج','استحمم بماء مالح دافئ'],
+  'Arthritis':['مارس الرياضة المناسبة','استخدم العلاج بالحرارة والبرودة','جرب الوخز بالإبر','احصل على تدليك منتظم'],
+  'Vertigo / Paroxysmal Positional Vertigo':['استلقِ فوراً','تجنب تغيير وضع جسمك بسرعة','تجنب تحريك رأسك بشكل مفاجئ','استرح حتى يزول الدوار'],
+  'Acne':['استحم مرتين يومياً','تجنب الأطعمة الدهنية والحارة','اشرب كمية كافية من الماء','تجنب الأطعمة السكرية'],
+  'Urinary tract infection':['اشرب الكثير من الماء','زد من تناول فيتامين C','اشرب عصير التوت البري','تناول البروبيوتيك'],
+  'Psoriasis':['اغسل يديك بالماء الدافئ والصابون','أوقف النزيف بالضغط','راجع الطبيب','استحم بماء مالح دافئ'],
+  'Impetigo':['انقع المنطقة المصابة في ماء دافئ','استخدم المضادات الحيوية الموضعية','أزل القشور بقطعة قماش مبللة','راجع الطبيب'],
+  // NEW 50 DISEASES PRECAUTIONS
+  'Sinusitis':['استنشق البخار مرتين يومياً','استخدم محلول ملحي لغسل الأنف','تجنب الهواء الجاف والملوث','راجع الطبيب إذا استمر أكثر من أسبوع'],
+  'Otitis Media':['لا تدخل الماء للأذن','تناول المضادات الحيوية بوصفة طبيب','ضع كمادة دافئة على الأذن','راجع الطبيب مبكراً'],
+  'Conjunctivitis':['اغسل يديك باستمرار','تجنب لمس العينين','لا تشارك المناشف والمكياج','استخدم قطرات مناسبة بوصفة طبيب'],
+  'Tonsillitis':['تناول السوائل الدافئة الوفيرة','استخدم مسكنات الألم المناسبة','تجنب الأطعمة الجافة الصلبة','راجع الطبيب لتحديد إذا كانت بكتيرية'],
+  'Laryngitis':['استرح صوتك قدر الإمكان','اشرب الكثير من السوائل الدافئة','استنشق بخار الماء','تجنب التدخين والمهيجات'],
+  'Bronchitis':['استرح جيداً واشرب سوائل وفيرة','تجنب التدخين والدخان','استخدم جهاز ترطيب الهواء','راجع الطبيب إذا كان البلغم ملوناً'],
+  'Pleuritis':['استرح وتجنب الجهد','خذ مسكنات ألم بتوجيه طبيب','تنفس بشكل ضحل إذا كان الألم شديداً','راجع الطبيب فوراً لمعرفة السبب'],
+  'Pericarditis':['استرح التام في السرير','تجنب الجهد البدني الشديد','تناول مضادات الالتهاب بوصفة طبيب','تابع مع طبيب القلب'],
+  'Anemia':['تناول أغذية غنية بالحديد والفيتامينات','راجع الطبيب لمعرفة السبب','التزم بالمكملات الغذائية الموصوفة','تجنب القهوة والشاي مع الوجبات'],
+  'Iron Deficiency Anemia':['تناول اللحوم الحمراء والبقوليات والخضروات الورقية','خذ مكملات الحديد مع فيتامين C','تجنب الشاي والقهوة بعد الأكل مباشرة','راجع الطبيب لمعرفة سبب النقص'],
+  'Kidney Stones':['اشرب 2-3 لترات من الماء يومياً','قلل من الملح والبروتين الحيواني','تجنب الأطعمة الغنية بالأوكزالات','راجع الطبيب لتحديد نوع الحصى'],
+  'Gallstones':['تجنب الأطعمة الدهنية والمقلية','حافظ على وزن صحي','مارس الرياضة بانتظام','راجع الطبيب لتحديد خيارات العلاج'],
+  'Appendicitis':['اتصل بالإسعاف فوراً','لا تتناول مسكنات تخفي الأعراض','لا تأكل أو تشرب في انتظار الجراح','الجراحة هي الحل الوحيد'],
+  'Pancreatitis':['توقف عن الكحول نهائياً','اتبع نظاماً غذائياً قليل الدهون','اشرب الكثير من الماء','راجع الطبيب ولا تتأخر في العلاج'],
+  'Diverticulitis':['تناول نظاماً غذائياً غنياً بالألياف','اشرب الكثير من الماء','تجنب الإمساك','راجع الطبيب لتلقي المضادات الحيوية إن لزم'],
+  'Irritable Bowel Syndrome':['تعرف على محفزاتك الغذائية وتجنبها','قلل التوتر والقلق','مارس الرياضة بانتظام','تناول وجبات صغيرة متكررة'],
+  'Celiac Disease':['التزم بنظام غذائي خالٍ من الغلوتين كلياً','اقرأ ملصقات الأطعمة بعناية','تناول مكملات الفيتامينات','راجع أخصائي تغذية متخصص'],
+  'Gastric Ulcer':['تجنب المضادات الحيوية غير الستيرويدية','توقف عن التدخين','تجنب الكحول والأطعمة الحارة','تناول الأدوية الحامية للمعدة'],
+  'Crohns Disease':['تجنب محفزات الأعراض الغذائية','تناول الأدوية بانتظام','قلل التوتر','تابع مع طبيب الجهاز الهضمي بانتظام'],
+  'Ulcerative Colitis':['التزم بعلاجك باستمرار','سجّل الأطعمة المحفزة وتجنبها','قلل التوتر النفسي','اخضع لفحوصات دورية'],
+  'Gout':['تجنب الكحول واللحوم الحمراء والمأكولات البحرية','اشرب الكثير من الماء','تناول الأدوية لخفض حمض البوليك','انقع المفصل المؤلم في ماء بارد'],
+  'Rheumatoid Arthritis':['مارس تمارين لطيفة للمفاصل','استخدم الحرارة أو البرودة لتخفيف الألم','تناول أدوية المرض بانتظام','تابع مع أخصائي الروماتولوجيا'],
+  'Lupus':['تجنب التعرض للشمس المباشر','استخدم واقي الشمس يومياً','التزم بعلاجك ولا تتوقف عنه','تابع مع الطبيب المتخصص بانتظام'],
+  'Multiple Sclerosis':['مارس الرياضة بانتظام لتقوية العضلات','تجنب الحرارة الشديدة','التزم بالعلاج المعدل للمرض','احصل على دعم نفسي واجتماعي'],
+  'Parkinsons Disease':['مارس تمارين توازن وتمتين العضلات','تناول الأدوية بانتظام في مواعيد ثابتة','استعن بمعالج طبيعي','احصل على الدعم الأسري الكافي'],
+  'Epilepsy':['تناول أدوية الصرع بانتظام','احصل على نوم كافٍ','تجنب المحفزات كومضات الضوء','أخبر من حولك بحالتك لمساعدتك وقت النوبة'],
+  'Meningitis':['اتصل بالإسعاف فوراً','تلقَّ العلاج في المستشفى فوراً','احصل على اللقاح الوقائي','تجنب مخالطة المصابين'],
+  'Encephalitis':['أدخل المستشفى فوراً','تلقَّ العلاج الفيروسي والداعم','تابع مع أخصائي أعصاب','احرص على الراحة الكاملة'],
+  'Stroke':['اتصل بالإسعاف فوراً (كل دقيقة مهمة)','لا تعطِ المريض طعاماً أو دواء','العلاج خلال أول 3 ساعات يحدث فرقاً كبيراً','ابدأ العلاج الطبيعي مبكراً بعد الاستقرار'],
+  'Deep Vein Thrombosis':['توجه للطوارئ فوراً','تجنب ضغط الساق أو تدليكها','تناول مضادات التخثر بوصفة طبيب','ارتدِ جوارب ضغط خاصة في السفر'],
+  'Pulmonary Embolism':['اتصل بالإسعاف فوراً - هذه حالة طارئة','تلقَّ العلاج في المستشفى فوراً','لا تتأخر في طلب المساعدة','تجنب عوامل الخطر كالسفر الطويل دون حركة'],
+  'Coronary Artery Disease':['توقف عن التدخين فوراً','اتبع نظاماً غذائياً صحياً للقلب','مارس الرياضة المعتدلة','تناول الأدوية الموصوفة بانتظام'],
+  'Atrial Fibrillation':['تناول مضادات التخثر لمنع الجلطات','قيّد الكافيين والكحول','تابع مع طبيب القلب بانتظام','راقب نبضاتك يومياً'],
+  'Heart Failure':['راقب وزنك يومياً لاكتشاف الاحتباس','قلل الملح في طعامك','التزم بالأدوية وخاصة مدرات البول','تجنب الجهد المفرط'],
+  'Chronic Kidney Disease':['تحكم في ضغط الدم والسكري','قلل البروتين والبوتاسيوم والصوديوم في الطعام','تجنب المضادات الحيوية والمسكنات الضارة للكلى','اخضع لفحص كلوي دوري'],
+  'Nephrotic Syndrome':['قلل الملح لتقليل التورم','تناول البروتين الكافي بمقدار محدد','التزم بالأدوية الموصوفة','راجع أخصائي الكلى بانتظام'],
+  'Prostatitis':['اشرب الكثير من الماء','جلس في حمام دافئ لتخفيف الألم','تجنب المشروبات الكحولية والكافيين','تناول المضادات الحيوية بوصفة طبيب'],
+  'Ovarian Cyst':['راجع الطبيب لتحديد نوع الكيس','اتبع التوصيات الطبية للمراقبة أو العلاج','تجنب الجهد الشديد إذا كان الكيس كبيراً','اخضعي لمتابعة بالموجات الصوتية'],
+  'Endometriosis':['استخدمي الأدوية الهرمونية بوصفة طبيب','مارسي تمارين خفيفة','تناولي مسكنات الألم المناسبة','تابعي مع أخصائي أمراض نساء'],
+  'Polycystic Ovary Syndrome':['حافظي على وزن صحي','مارسي الرياضة بانتظام','اتبعي نظاماً غذائياً منخفض الكربوهيدرات','تناولي الأدوية الهرمونية بتوجيه طبيب'],
+  'Eczema':['استخدم مرطب الجلد بكثرة','تجنب الصابون القوي والمهيجات','ارتدِ ملابس قطنية ناعمة','حدد محفزاتك وتجنبها'],
+  'Rosacea':['تجنب محفزات الاحمرار (الشمس والحرارة والتوابل)','استخدم واقي شمس يومياً','تجنب المنتجات الجلدية المهيجة','راجع الطبيب لعلاج موضعي مناسب'],
+  'Shingles':['تناول مضادات الفيروسات مبكراً','ضع كمادة باردة على المنطقة المؤلمة','تجنب لمس الطفح بيديك','تجنب التواصل مع من لم يصبهم جدري الماء'],
+  'Measles':['استرح في المنزل وتجنب مخالطة الآخرين','اشرب السوائل الوفيرة','راجع الطبيب إذا ظهرت مضاعفات','احصل على اللقاح للوقاية مستقبلاً'],
+  'Mumps':['استرح جيداً وضع كمادة باردة على التورم','تناول مسكنات الألم المناسبة','تجنب الطعام الصلب الصعب المضغ','تجنب مخالطة الآخرين حتى تتعافى'],
+  'Rubella':['استرح جيداً في المنزل','تجنب الاتصال بالحوامل خاصة في الأشهر الأولى','تناول مسكنات الألم الخفيفة','احصل على لقاح MMR للوقاية'],
+  'Scarlet Fever':['تناول المضادات الحيوية بالجرعة الكاملة','استرح في المنزل حتى تتعافى','اشرب السوائل الدافئة الوفيرة','تجنب مشاركة أدوات الأكل'],
+  'Leptospirosis':['تجنب السباحة في المياه الراكدة','ارتدِ أحذية وقفازات عند التعامل مع الحيوانات','تناول المضادات الحيوية بوصفة طبيب','راجع الطبيب مبكراً لتجنب المضاعفات'],
+  'Scabies':['استخدم كريم البيرميثرين الموصوف','اغسل كل الملابس والأفرشة بالماء الساخن','عالج كل أفراد المنزل في وقت واحد','تجنب الاتصال الجسدي حتى الشفاء'],
+  'Ringworm':['استخدم مضاداً فطرياً موضعياً','حافظ على جفاف المنطقة المصابة','تجنب مشاركة الملابس والمناشف','غسل اليدين بانتظام وتجنب لمس الطفح'],
+};
+
+// ═══════════════════════════════════════════
+//  SYMPTOM CATEGORIES
+// ═══════════════════════════════════════════
+const CATS = {
+  ar: {
+    'الكل': null,
+    '🫁 تنفسي': ['cough','breathlessness','shortness_of_breath_on_exertion','congestion','runny_nose','sinus_pressure','throat_irritation','phlegm','mucoid_sputum','rusty_sputum','blood_in_sputum','chest_pain','hoarseness'],
+    '🌡️ حمى': ['high_fever','mild_fever','fever_with_rash','chills','shivering','sweating','night_sweats'],
+    '🤢 هضمي': ['nausea','vomiting','diarrhoea','constipation','abdominal_pain','stomach_pain','indigestion','acidity','loss_of_appetite','passage_of_gases','belly_pain','stomach_bleeding','distention_of_abdomen','pain_during_bowel_movements','bloody_stool','blood_in_stool','dark_stools','bloating'],
+    '🧠 عصبي': ['headache','dizziness','spinning_movements','loss_of_balance','unsteadiness','altered_sensorium','word_slurring','loss_of_smell','loss_of_taste','confusion','memory_loss','tremor','weakness_of_one_body_side','numbness'],
+    '🦴 عضلي مفصلي': ['joint_pain','muscle_pain','muscle_weakness','muscle_wasting','back_pain','neck_pain','knee_pain','hip_joint_pain','stiff_neck','neck_stiffness','movement_stiffness','swelling_joints','painful_walking','shoulder_pain','wrist_pain','finger_swelling','leg_cramps','lower_back_pain'],
+    '🫀 قلبي وعائي': ['chest_pain','fast_heart_rate','palpitations','swollen_ankles','prominent_veins_on_calf','swelled_lymph_nodes','bruising_easily'],
+    '🧪 بولي تناسلي': ['burning_micturition','spotting_urination','bladder_discomfort','foul_smell_of_urine','continuous_feel_of_urine','blood_in_urine','painful_urination','frequent_urination','polyuria','abnormal_menstruation','menstrual_pain','vaginal_discharge'],
+    '🌿 جلدي': ['itching','skin_rash','nodal_skin_eruptions','skin_peeling','silver_like_dusting','pus_filled_pimples','blackheads','blister','red_sore_around_nose','yellow_crust_ooze','red_spots_over_body','pale_skin','skin_yellowing','dry_skin','hair_loss','brittle_nails','inflammatory_nails','small_dents_in_nails'],
+    '👁️ عين وأذن': ['redness_of_eyes','watering_from_eyes','blurred_and_distorted_vision','visual_disturbances','sensitivity_to_light','eye_discharge','eye_pain','hearing_loss','tinnitus','ear_pain','night_blindness'],
+    '⚡ عام': ['fatigue','lethargy','malaise','weakness_in_limbs','weight_loss','weight_gain','dehydration','cold_hands_and_feets','anxiety','depression','irritability','mood_swings','restlessness','lack_of_concentration','loss_of_consciousness','excessive_thirst','excessive_hunger','increased_appetite','frequent_infections','slow_healing'],
+  },
+  en: {
+    'All': null,
+    '🫁 Respiratory': ['cough','breathlessness','shortness_of_breath_on_exertion','congestion','runny_nose','sinus_pressure','throat_irritation','phlegm','mucoid_sputum','rusty_sputum','blood_in_sputum','chest_pain','hoarseness'],
+    '🌡️ Fever': ['high_fever','mild_fever','fever_with_rash','chills','shivering','sweating','night_sweats'],
+    '🤢 Digestive': ['nausea','vomiting','diarrhoea','constipation','abdominal_pain','stomach_pain','indigestion','acidity','loss_of_appetite','passage_of_gases','belly_pain','stomach_bleeding','distention_of_abdomen','pain_during_bowel_movements','bloody_stool','blood_in_stool','dark_stools','bloating'],
+    '🧠 Neurological': ['headache','dizziness','spinning_movements','loss_of_balance','unsteadiness','altered_sensorium','word_slurring','loss_of_smell','loss_of_taste','confusion','memory_loss','tremor','weakness_of_one_body_side','numbness'],
+    '🦴 Musculo-skeletal': ['joint_pain','muscle_pain','muscle_weakness','muscle_wasting','back_pain','neck_pain','knee_pain','hip_joint_pain','stiff_neck','neck_stiffness','movement_stiffness','swelling_joints','painful_walking','shoulder_pain','wrist_pain','finger_swelling','leg_cramps','lower_back_pain'],
+    '🫀 Cardiovascular': ['chest_pain','fast_heart_rate','palpitations','swollen_ankles','prominent_veins_on_calf','swelled_lymph_nodes','bruising_easily'],
+    '🧪 Urogenital': ['burning_micturition','spotting_urination','bladder_discomfort','foul_smell_of_urine','continuous_feel_of_urine','blood_in_urine','painful_urination','frequent_urination','polyuria','abnormal_menstruation','menstrual_pain','vaginal_discharge'],
+    '🌿 Skin': ['itching','skin_rash','nodal_skin_eruptions','skin_peeling','silver_like_dusting','pus_filled_pimples','blackheads','blister','red_sore_around_nose','yellow_crust_ooze','red_spots_over_body','pale_skin','skin_yellowing','dry_skin','hair_loss','brittle_nails','inflammatory_nails','small_dents_in_nails'],
+    '👁️ Eyes & Ears': ['redness_of_eyes','watering_from_eyes','blurred_and_distorted_vision','visual_disturbances','sensitivity_to_light','eye_discharge','eye_pain','hearing_loss','tinnitus','ear_pain','night_blindness'],
+    '⚡ General': ['fatigue','lethargy','malaise','weakness_in_limbs','weight_loss','weight_gain','dehydration','cold_hands_and_feets','anxiety','depression','irritability','mood_swings','restlessness','lack_of_concentration','loss_of_consciousness','excessive_thirst','excessive_hunger','increased_appetite','frequent_infections','slow_healing'],
+  }
+};
+
+// ═══════════════════════════════════════════
+//  FULL SYMPTOM LIST (original + new)
+// ═══════════════════════════════════════════
+const ALL_SYMS = [
+  // Original
+  'itching','skin_rash','nodal_skin_eruptions','continuous_sneezing','shivering','chills',
+  'joint_pain','stomach_pain','acidity','ulcers_on_tongue','muscle_wasting','vomiting',
+  'burning_micturition','spotting_urination','fatigue','weight_gain','anxiety',
+  'cold_hands_and_feets','mood_swings','weight_loss','restlessness','lethargy',
+  'patches_in_throat','irregular_sugar_level','cough','high_fever','sunken_eyes',
+  'breathlessness','sweating','dehydration','indigestion','headache','yellowish_skin',
+  'dark_urine','nausea','loss_of_appetite','pain_behind_the_eyes','back_pain','constipation',
+  'abdominal_pain','diarrhoea','mild_fever','yellow_urine','yellowing_of_eyes',
+  'acute_liver_failure','fluid_overload','swelling_of_stomach','swelled_lymph_nodes',
+  'malaise','blurred_and_distorted_vision','phlegm','throat_irritation','redness_of_eyes',
+  'sinus_pressure','runny_nose','congestion','chest_pain','weakness_in_limbs',
+  'fast_heart_rate','pain_during_bowel_movements','pain_in_anal_region','bloody_stool',
+  'irritation_in_anus','neck_stiffness','word_slurring','knee_pain','hip_joint_pain',
+  'muscle_weakness','stiff_neck','swelling_joints','movement_stiffness','spinning_movements',
+  'loss_of_balance','unsteadiness','weakness_of_one_body_side','loss_of_smell',
+  'bladder_discomfort','foul_smell_of_urine','continuous_feel_of_urine','passage_of_gases',
+  'internal_itching','toxic_look_(typhos)','depression','irritability','muscle_pain',
+  'altered_sensorium','red_spots_over_body','belly_pain','abnormal_menstruation',
+  'dischromic_patches','watering_from_eyes','increased_appetite','polyuria','family_history',
+  'mucoid_sputum','rusty_sputum','lack_of_concentration','visual_disturbances',
+  'receiving_blood_transfusion','receiving_unsterile_injections','coma','stomach_bleeding',
+  'distention_of_abdomen','history_of_alcohol_consumption','fluid_overload.1','blood_in_sputum',
+  'prominent_veins_on_calf','palpitations','painful_walking','pus_filled_pimples','blackheads',
+  'scurring','skin_peeling','silver_like_dusting','small_dents_in_nails','inflammatory_nails',
+  'blister','red_sore_around_nose','yellow_crust_ooze',
+  'dizziness','neck_pain','extra_marital_contacts','obesity','thirst','excessive_hunger',
+  // NEW
+  'sore_throat','ear_pain','hearing_loss','tinnitus','dry_mouth','excessive_thirst',
+  'frequent_urination','night_sweats','loss_of_consciousness','confusion','memory_loss',
+  'tremor','difficulty_swallowing','hoarseness','shortness_of_breath_on_exertion',
+  'swollen_ankles','leg_cramps','hair_loss','brittle_nails','dry_skin','excessive_sweating',
+  'loss_of_taste','facial_pain','jaw_pain','shoulder_pain','wrist_pain','finger_swelling',
+  'eye_discharge','sensitivity_to_light','sensitivity_to_sound','numbness',
+  'burning_sensation','night_blindness','blood_in_urine','painful_urination',
+  'lower_back_pain','groin_pain','testicular_pain','menstrual_pain','vaginal_discharge',
+  'breast_pain','nipple_discharge','swollen_glands','fever_with_rash','red_eyes',
+  'eye_pain','skin_yellowing','jaundice','pale_skin','bruising_easily','blood_in_stool',
+  'dark_stools','frequent_infections','slow_healing','cold_intolerance','heat_intolerance',
+  'bloating',
+];
+
+// Severity weights
+const SEV = {
+  itching:1,skin_rash:3,nodal_skin_eruptions:4,continuous_sneezing:4,shivering:5,
+  chills:3,joint_pain:3,stomach_pain:5,acidity:3,ulcers_on_tongue:4,muscle_wasting:3,
+  vomiting:5,burning_micturition:6,spotting_urination:6,fatigue:4,weight_gain:3,
+  anxiety:4,cold_hands_and_feets:5,mood_swings:3,weight_loss:3,restlessness:5,
+  lethargy:2,patches_in_throat:6,irregular_sugar_level:5,cough:4,high_fever:7,
+  sunken_eyes:4,breathlessness:4,sweating:3,dehydration:4,indigestion:5,headache:3,
+  yellowish_skin:3,dark_urine:4,nausea:5,loss_of_appetite:4,pain_behind_the_eyes:4,
+  back_pain:3,constipation:4,abdominal_pain:5,diarrhoea:6,mild_fever:5,
+  yellow_urine:4,yellowing_of_eyes:4,acute_liver_failure:6,fluid_overload:5,
+  swelling_of_stomach:7,swelled_lymph_nodes:6,malaise:5,blurred_and_distorted_vision:5,
+  phlegm:5,throat_irritation:4,redness_of_eyes:4,sinus_pressure:4,runny_nose:4,
+  congestion:4,chest_pain:7,weakness_in_limbs:4,fast_heart_rate:5,
+  pain_during_bowel_movements:3,pain_in_anal_region:6,bloody_stool:5,
+  irritation_in_anus:6,neck_stiffness:5,word_slurring:4,knee_pain:3,hip_joint_pain:2,
+  muscle_weakness:3,stiff_neck:4,swelling_joints:5,movement_stiffness:3,
+  spinning_movements:6,loss_of_balance:4,unsteadiness:4,weakness_of_one_body_side:6,
+  loss_of_smell:3,bladder_discomfort:4,foul_smell_of_urine:5,
+  continuous_feel_of_urine:6,passage_of_gases:5,internal_itching:4,
+  depression:3,irritability:2,muscle_pain:2,altered_sensorium:5,
+  red_spots_over_body:5,belly_pain:4,abnormal_menstruation:6,watering_from_eyes:4,
+  increased_appetite:5,polyuria:5,mucoid_sputum:4,rusty_sputum:4,
+  lack_of_concentration:3,visual_disturbances:3,blood_in_sputum:5,
+  palpitations:4,painful_walking:2,pus_filled_pimples:4,blackheads:4,
+  skin_peeling:3,blister:4,red_sore_around_nose:6,yellow_crust_ooze:4,
+  chest_pain:7,loss_of_consciousness:8,confusion:5,coma:9,tremor:4,
+  blood_in_urine:6,blood_in_stool:6,night_sweats:4,frequent_infections:5,
+};
+
+// Disease rules
+const RULES = [
+  {d:'Fungal infection',s:['itching','skin_rash','nodal_skin_eruptions','dischromic_patches'],p:['Bath twice','use detol or neem in bathing water','keep infected area dry','use clean cloths']},
+  {d:'Allergy',s:['continuous_sneezing','shivering','watering_from_eyes','chills'],p:['apply calamine','cover area with bandage','use ice to compress itching','avoid contact with allergens']},
+  {d:'GERD',s:['stomach_pain','acidity','ulcers_on_tongue','vomiting','cough','chest_pain'],p:['avoid fatty spicy food','avoid lying down after eating','maintain healthy weight','exercise']},
+  {d:'Chronic cholestasis',s:['itching','vomiting','yellowish_skin','nausea','loss_of_appetite','abdominal_pain','yellowing_of_eyes'],p:['cold baths','anti itch medicine','consult doctor','eat healthy']},
+  {d:'Drug Reaction',s:['itching','skin_rash','stomach_pain','burning_micturition','spotting_urination'],p:['stop irritation','consult nearest hospital','stop taking drug','follow up']},
+  {d:'Peptic ulcer disease',s:['vomiting','indigestion','loss_of_appetite','abdominal_pain','passage_of_gases','internal_itching'],p:['avoid fatty spicy food','consume probiotic food','eliminate milk','limit alcohol']},
+  {d:'AIDS',s:['muscle_wasting','patches_in_throat','high_fever','fatigue','extra_marital_contacts'],p:['avoid open cuts','wear ppe if possible','consult doctor','follow up']},
+  {d:'Diabetes',s:['fatigue','weight_loss','restlessness','lethargy','irregular_sugar_level','blurred_and_distorted_vision','obesity','excessive_hunger','increased_appetite','polyuria'],p:['have balanced diet','exercise','consult doctor','follow up']},
+  {d:'Gastroenteritis',s:['vomiting','sunken_eyes','dehydration','diarrhoea'],p:['stop eating solid food for a while','try taking small sips of water','rest','ease back into eating']},
+  {d:'Bronchial Asthma',s:['fatigue','cough','high_fever','breathlessness','family_history','mucoid_sputum'],p:['switch to loose clothing','take deep breaths','get away from trigger','seek help']},
+  {d:'Hypertension',s:['headache','chest_pain','dizziness','loss_of_balance','lack_of_concentration'],p:['meditation','salt baths','reduce stress','get proper sleep']},
+  {d:'Migraine',s:['acidity','indigestion','headache','blurred_and_distorted_vision','excessive_hunger','stiff_neck','depression','irritability','visual_disturbances'],p:['meditation','reduce stress','use poloroid glasses in sun','consult doctor']},
+  {d:'Cervical spondylosis',s:['back_pain','weakness_in_limbs','neck_pain','dizziness','loss_of_balance'],p:['use heating pad or cold pack','exercise','take otc pain reliver','consult doctor']},
+  {d:'Paralysis (brain hemorrhage)',s:['vomiting','headache','weakness_of_one_body_side','altered_sensorium'],p:['massage','eat healthy','exercise','consult doctor']},
+  {d:'Jaundice',s:['itching','vomiting','fatigue','weight_loss','high_fever','yellowish_skin','dark_urine','abdominal_pain'],p:['drink 8+ glasses of water','consume milk thistle','eat fruits and high fibered food','medication']},
+  {d:'Malaria',s:['chills','vomiting','high_fever','sweating','headache','nausea','diarrhoea','muscle_pain'],p:['Consult nearest hospital','avoid oily food','avoid non veg food','keep mosquitoes out']},
+  {d:'Chicken pox',s:['itching','skin_rash','fatigue','lethargy','high_fever','headache','loss_of_appetite','mild_fever','swelled_lymph_nodes','malaise','red_spots_over_body','blister'],p:['use neem in bathing','consume neem leaves','take vaccine','avoid public places']},
+  {d:'Dengue',s:['skin_rash','chills','joint_pain','vomiting','fatigue','high_fever','headache','nausea','loss_of_appetite','pain_behind_the_eyes','back_pain','muscle_pain','red_spots_over_body'],p:['drink papaya leaf juice','avoid fatty spicy food','keep mosquitoes away','keep hydrated']},
+  {d:'Typhoid',s:['chills','vomiting','fatigue','high_fever','headache','nausea','constipation','abdominal_pain','diarrhoea','toxic_look_(typhos)','belly_pain'],p:['eat high calorie vegitables','antibiotic therapy','consult doctor','medication']},
+  {d:'Hepatitis A',s:['joint_pain','vomiting','yellowish_skin','dark_urine','nausea','loss_of_appetite','abdominal_pain','yellowing_of_eyes','muscle_pain','malaise'],p:['Consult nearest hospital','wash hands through','avoid fatty spicy food','medication']},
+  {d:'Hepatitis B',s:['itching','fatigue','lethargy','yellowish_skin','dark_urine','loss_of_appetite','abdominal_pain','yellowing_of_eyes','malaise','receiving_blood_transfusion','receiving_unsterile_injections'],p:['consult nearest hospital','vaccination','eat healthy','medication']},
+  {d:'Hepatitis C',s:['fatigue','yellowish_skin','nausea','loss_of_appetite','yellowing_of_eyes','family_history'],p:['Consult nearest hospital','vaccination','eat healthy','medication']},
+  {d:'Hepatitis D',s:['joint_pain','vomiting','fatigue','yellowish_skin','dark_urine','nausea','loss_of_appetite','yellowing_of_eyes','malaise'],p:['consult doctor','medication','eat healthy','follow up']},
+  {d:'Hepatitis E',s:['joint_pain','vomiting','fatigue','high_fever','yellowish_skin','dark_urine','nausea','loss_of_appetite','abdominal_pain','yellowing_of_eyes'],p:['stop alcohol consumption','rest','consult doctor','medication']},
+  {d:'Alcoholic hepatitis',s:['vomiting','yellowish_skin','abdominal_pain','swelling_of_stomach','history_of_alcohol_consumption','fluid_overload','thirst'],p:['stop alcohol consumption','consult doctor','medication','follow up']},
+  {d:'Tuberculosis',s:['chills','vomiting','fatigue','weight_loss','cough','high_fever','breathlessness','sweating','loss_of_appetite','mild_fever','yellowing_of_eyes','swelled_lymph_nodes','malaise','phlegm','blood_in_sputum','rusty_sputum'],p:['cover mouth','consult doctor','medication','rest']},
+  {d:'Common Cold',s:['continuous_sneezing','chills','fatigue','cough','high_fever','headache','swelled_lymph_nodes','malaise','phlegm','throat_irritation','redness_of_eyes','sinus_pressure','runny_nose','congestion','chest_pain','loss_of_smell','muscle_pain'],p:['drink vitamin c rich drinks','take vapor','avoid cold food','keep fever in check']},
+  {d:'Pneumonia',s:['chills','fatigue','cough','high_fever','breathlessness','sweating','malaise','phlegm','blood_in_sputum','rusty_sputum','chest_pain'],p:['consult doctor','medication','rest','follow up']},
+  {d:'Dimorphic hemmorhoids (piles)',s:['constipation','pain_during_bowel_movements','pain_in_anal_region','bloody_stool','irritation_in_anus'],p:['avoid fatty spicy food','consume witch hazel','warm bath with epsom salt','consume alovera juice']},
+  {d:'Heart attack',s:['vomiting','breathlessness','sweating','chest_pain'],p:['call ambulance','chew or swallow asprin','keep calm','inform to family members']},
+  {d:'Varicose veins',s:['fatigue','cramps','bruising','obesity','swollen_legs','swollen_blood_vessels','prominent_veins_on_calf'],p:['lie down flat and raise the leg high','use oinments','use vein compression','dont stand still for long']},
+  {d:'Hypothyroidism',s:['fatigue','weight_gain','cold_hands_and_feets','mood_swings','lethargy','dry_skin','brittle_nails','depression','irritability','abnormal_menstruation'],p:['reduce stress','exercise','eat healthy','get proper sleep']},
+  {d:'Hyperthyroidism',s:['fatigue','mood_swings','weight_loss','restlessness','sweating','diarrhoea','fast_heart_rate','excessive_hunger','muscle_weakness','irritability','abnormal_menstruation'],p:['eat healthy','massage','use lemon balm','take radioactive iodine treatment']},
+  {d:'Hypoglycemia',s:['vomiting','fatigue','anxiety','cold_hands_and_feets','sweating','headache','nausea','blurred_and_distorted_vision','excessive_hunger','numbness','word_slurring','irritability','muscle_weakness','palpitations'],p:['lie down on side','check in pulse','drink sugary drinks','consult doctor']},
+  {d:'Osteoarthritis',s:['joint_pain','neck_pain','knee_pain','hip_joint_pain','swelling_joints','painful_walking'],p:['acetaminophen','consult nearest hospital','follow up','salt baths']},
+  {d:'Arthritis',s:['muscle_weakness','stiff_neck','swelling_joints','movement_stiffness','painful_walking'],p:['exercise','use hot and cold therapy','try acupuncture','massage']},
+  {d:'Vertigo / Paroxysmal Positional Vertigo',s:['vomiting','headache','spinning_movements','loss_of_balance','unsteadiness','nausea'],p:['lie down','avoid sudden change in body','avoid abrupt head movment','relax']},
+  {d:'Acne',s:['skin_rash','pus_filled_pimples','blackheads','scurring'],p:['bath twice daily','avoid fatty spicy food','drink sufficient water','avoid sugary food']},
+  {d:'Urinary tract infection',s:['burning_micturition','bladder_discomfort','foul_smell_of_urine','continuous_feel_of_urine'],p:['drink plenty of water','increase vitamin c intake','drink cranberry juice','take probiotics']},
+  {d:'Psoriasis',s:['skin_rash','joint_pain','skin_peeling','silver_like_dusting','small_dents_in_nails','inflammatory_nails'],p:['wash hands with warm soapy water','stop bleeding using pressure','consult doctor','salt baths']},
+  {d:'Impetigo',s:['skin_rash','high_fever','blister','red_sore_around_nose','yellow_crust_ooze'],p:['soak affected area in warm water','use antibiotics','remove scabs with wet compressed cloth','consult doctor']},
+  // ── NEW 50 DISEASES ──
+  {d:'Sinusitis',s:['headache','sinus_pressure','runny_nose','congestion','facial_pain','cough','fever_with_rash','loss_of_smell'],desc:'Inflammation of the sinuses, often caused by infection or allergies, causing facial pressure and nasal congestion.',p:['inhale steam twice daily','rinse nose with saline solution','avoid dry and polluted air','see a doctor if it lasts more than a week']},
+  {d:'Otitis Media',s:['ear_pain','high_fever','headache','hearing_loss','nausea','chills'],desc:'Middle ear infection common in children, causing pain, fever, and sometimes hearing difficulty.',p:['keep ear dry','take antibiotics as prescribed','apply warm compress to ear','see doctor early']},
+  {d:'Conjunctivitis',s:['red_eyes','eye_discharge','watering_from_eyes','sensitivity_to_light','eye_pain','itching'],desc:'Inflammation of the conjunctiva (pink eye), caused by bacteria, virus, or allergy, causing redness and discharge.',p:['wash hands frequently','avoid touching eyes','do not share towels or makeup','use appropriate eye drops as prescribed']},
+  {d:'Tonsillitis',s:['sore_throat','high_fever','headache','difficulty_swallowing','swollen_glands','fatigue'],desc:'Inflammation of the tonsils causing severe throat pain, fever, and swollen lymph nodes.',p:['drink plenty of warm fluids','use appropriate pain relievers','avoid hard dry foods','see a doctor to determine if bacterial']},
+  {d:'Laryngitis',s:['hoarseness','sore_throat','cough','difficulty_swallowing','loss_of_smell'],desc:'Inflammation of the larynx causing hoarseness or temporary voice loss, throat pain, and coughing.',p:['rest your voice as much as possible','drink plenty of warm fluids','inhale steam','avoid smoking and irritants']},
+  {d:'Bronchitis',s:['cough','phlegm','fatigue','chest_pain','mild_fever','breathlessness','mucoid_sputum'],desc:'Inflammation of the bronchial tubes causing persistent cough with sputum. Can be acute from infection or chronic from smoking.',p:['rest well and drink plenty of fluids','avoid smoking and smoke','use a humidifier','see doctor if sputum is colored']},
+  {d:'Pleuritis',s:['chest_pain','breathlessness','cough','high_fever','fatigue'],desc:'Inflammation of the pleural membrane surrounding the lungs, causing sharp chest pain that worsens with breathing.',p:['rest and avoid exertion','take pain relievers as directed by doctor','breathe shallowly if pain is severe','see doctor immediately to find the cause']},
+  {d:'Pericarditis',s:['chest_pain','high_fever','fatigue','palpitations','breathlessness'],desc:'Inflammation of the pericardium (sac surrounding the heart), causing sharp chest pain that improves when leaning forward.',p:['get complete bed rest','avoid intense physical effort','take anti-inflammatories as prescribed','follow up with a cardiologist']},
+  {d:'Anemia',s:['fatigue','pale_skin','breathlessness','headache','cold_hands_and_feets','dizziness','palpitations'],desc:'Low red blood cells or hemoglobin, reducing the blood\'s oxygen-carrying capacity, causing fatigue and pallor.',p:['eat foods rich in iron and vitamins','see doctor to find the cause','follow prescribed supplements','avoid coffee and tea with meals']},
+  {d:'Iron Deficiency Anemia',s:['fatigue','pale_skin','hair_loss','brittle_nails','breathlessness','headache','cold_hands_and_feets'],desc:'Most common type of anemia caused by insufficient iron for hemoglobin production, causing severe fatigue and pallor.',p:['eat red meat, legumes, and leafy vegetables','take iron supplements with vitamin C','avoid tea and coffee immediately after eating','see doctor to find cause of deficiency']},
+  {d:'Kidney Stones',s:['lower_back_pain','blood_in_urine','nausea','vomiting','painful_urination','groin_pain','fever_with_rash'],desc:'Hard mineral deposits in the kidneys causing severe back and side pain radiating to the groin, blood in urine and nausea.',p:['drink 2-3 liters of water daily','reduce salt and animal protein','avoid foods high in oxalates','see doctor to determine stone type']},
+  {d:'Gallstones',s:['abdominal_pain','nausea','vomiting','yellowish_skin','indigestion','back_pain'],desc:'Hardened deposits in the gallbladder that can cause intense upper right abdominal pain especially after fatty meals.',p:['avoid fatty and fried foods','maintain a healthy weight','exercise regularly','see doctor to determine treatment options']},
+  {d:'Appendicitis',s:['abdominal_pain','vomiting','high_fever','nausea','loss_of_appetite'],desc:'Acute inflammation of the appendix starting with pain around the navel moving to lower right abdomen, requiring urgent surgery.',p:['call ambulance immediately','do not take painkillers that hide symptoms','do not eat or drink while waiting for surgeon','surgery is the only solution']},
+  {d:'Pancreatitis',s:['abdominal_pain','vomiting','high_fever','nausea','back_pain','yellowish_skin'],desc:'Inflammation of the pancreas causing severe upper abdominal pain radiating to the back, with nausea, vomiting, and fever.',p:['stop alcohol completely','follow a low-fat diet','drink plenty of water','see doctor immediately and do not delay treatment']},
+  {d:'Diverticulitis',s:['abdominal_pain','high_fever','constipation','diarrhoea','nausea','bloating'],desc:'Inflammation in small pouches formed in the colon wall, causing pain in the lower left abdomen with fever.',p:['eat a high-fiber diet','drink plenty of water','avoid constipation','see doctor for antibiotics if needed']},
+  {d:'Irritable Bowel Syndrome',s:['abdominal_pain','diarrhoea','constipation','bloating','passage_of_gases','nausea'],desc:'Chronic functional bowel disorder causing recurring abdominal pain with bloating, diarrhea or constipation, without structural damage.',p:['identify and avoid your dietary triggers','reduce stress and anxiety','exercise regularly','eat small frequent meals']},
+  {d:'Celiac Disease',s:['diarrhoea','abdominal_pain','weight_loss','fatigue','bloating','skin_rash'],desc:'Autoimmune disease triggered by gluten, damaging the small intestine lining and impairing nutrient absorption.',p:['follow a completely gluten-free diet','read food labels carefully','take vitamin supplements','see a specialized dietitian']},
+  {d:'Gastric Ulcer',s:['stomach_pain','nausea','vomiting','blood_in_stool','weight_loss','indigestion'],desc:'Erosion in the stomach lining causing burning pain in the middle of the abdomen, worsening with eating.',p:['avoid non-steroidal anti-inflammatory drugs','stop smoking','avoid alcohol and spicy foods','take stomach-protective medications']},
+  {d:'Crohns Disease',s:['abdominal_pain','diarrhoea','weight_loss','fatigue','blood_in_stool','fever_with_rash'],desc:'Chronic inflammatory bowel disease affecting any part of the digestive tract causing abdominal pain and severe diarrhea.',p:['avoid dietary triggers','take medications regularly','reduce stress','follow up with gastroenterologist regularly']},
+  {d:'Ulcerative Colitis',s:['bloody_stool','diarrhoea','abdominal_pain','fatigue','weight_loss','high_fever'],desc:'Chronic inflammatory bowel disease affecting the colon and rectum causing ulcers, bloody diarrhea, and severe abdominal pain.',p:['maintain treatment continuously','record and avoid triggering foods','reduce psychological stress','undergo regular checkups']},
+  {d:'Gout',s:['joint_pain','swelling_joints','knee_pain','hip_joint_pain','high_fever','fatigue'],desc:'Disease caused by uric acid crystal buildup in joints, causing sudden attacks of severe pain, swelling and redness.',p:['avoid alcohol, red meat and seafood','drink plenty of water','take uric acid-lowering medications','soak the painful joint in cold water']},
+  {d:'Rheumatoid Arthritis',s:['joint_pain','swelling_joints','stiff_neck','fatigue','movement_stiffness','muscle_weakness','depression'],desc:'Chronic autoimmune disease where the immune system attacks joint linings causing painful inflammation and swelling.',p:['do gentle joint exercises','use heat or cold for pain relief','take disease medications regularly','follow up with rheumatologist']},
+  {d:'Lupus',s:['fatigue','joint_pain','skin_rash','high_fever','hair_loss','chest_pain','sensitivity_to_light'],desc:'Chronic autoimmune disease where the immune system attacks various body tissues, showing butterfly rash on face and joint pain.',p:['avoid direct sun exposure','use sunscreen daily','stick to your treatment and do not stop','follow up with specialist regularly']},
+  {d:'Multiple Sclerosis',s:['weakness_in_limbs','blurred_and_distorted_vision','numbness','fatigue','loss_of_balance','tremor','difficulty_swallowing'],desc:'Chronic disease of the central nervous system damaging the myelin sheath of nerves causing numbness, muscle weakness, and vision disturbances.',p:['exercise regularly to strengthen muscles','avoid extreme heat','stick to disease-modifying treatment','get psychological and social support']},
+  {d:'Parkinsons Disease',s:['tremor','movement_stiffness','loss_of_balance','muscle_weakness','depression','difficulty_swallowing'],desc:'Progressive neurological disease affecting dopamine-producing brain cells, characterized by tremor, slow movement, and muscle stiffness.',p:['do balance and muscle strengthening exercises','take medications regularly at fixed times','work with a physiotherapist','get adequate family support']},
+  {d:'Epilepsy',s:['loss_of_consciousness','confusion','altered_sensorium','weakness_in_limbs','fatigue','muscle_weakness'],desc:'Neurological disorder causing recurring seizures due to irregular electrical activity in the brain, ranging from absence spells to full convulsions.',p:['take anti-epileptic medications regularly','get adequate sleep','avoid triggers like flashing lights','inform those around you to help during a seizure']},
+  {d:'Meningitis',s:['neck_stiffness','high_fever','headache','sensitivity_to_light','sensitivity_to_sound','vomiting','confusion'],desc:'Inflammation of the membranes surrounding the brain and spinal cord causing severe headache, neck stiffness, and fever — a medical emergency.',p:['call ambulance immediately','get hospital treatment immediately','get preventive vaccine','avoid contact with infected persons']},
+  {d:'Encephalitis',s:['high_fever','headache','confusion','altered_sensorium','fatigue','memory_loss','sensitivity_to_light'],desc:'Inflammation of the brain itself, usually from a virus, causing fever, headache, confusion, and potentially seizures and coma.',p:['get hospitalized immediately','receive antiviral and supportive treatment','follow up with a neurologist','ensure complete rest']},
+  {d:'Stroke',s:['weakness_of_one_body_side','word_slurring','headache','loss_of_consciousness','confusion','blurred_and_distorted_vision'],desc:'Sudden disruption of blood flow to part of the brain by blockage or bleeding, causing sudden paralysis, speech difficulty, and facial drooping.',p:['call ambulance immediately - every minute counts','do not give food or medication to the patient','treatment within first 3 hours makes a big difference','start physical therapy early after stabilization']},
+  {d:'Deep Vein Thrombosis',s:['swollen_ankles','leg_cramps','pain_behind_the_eyes','high_fever','fatigue'],desc:'Blood clot in a deep vein, usually in the leg, causing swelling, pain, and redness, and may travel to lungs causing pulmonary embolism.',p:['go to emergency immediately','avoid pressing or massaging the leg','take anticoagulants as prescribed','wear compression stockings especially during long travel']},
+  {d:'Pulmonary Embolism',s:['breathlessness','chest_pain','palpitations','high_fever','loss_of_consciousness','cough'],desc:'Sudden blockage of a pulmonary artery, usually by a blood clot from the leg, causing sudden shortness of breath and chest pain.',p:['call ambulance immediately - this is an emergency','get hospital treatment immediately','do not delay seeking help','avoid risk factors like long travel without movement']},
+  {d:'Coronary Artery Disease',s:['chest_pain','breathlessness','fatigue','palpitations','nausea','sweating'],desc:'Narrowing or blockage of the coronary arteries by cholesterol buildup, causing chest pain and potentially heart attack.',p:['stop smoking immediately','follow a heart-healthy diet','do moderate exercise','take prescribed medications regularly']},
+  {d:'Atrial Fibrillation',s:['palpitations','breathlessness','fatigue','dizziness','chest_pain','swollen_ankles'],desc:'Heart rhythm disorder characterized by rapid and irregular heartbeat, causing palpitations and shortness of breath, raising stroke risk.',p:['take anticoagulants to prevent clots','limit caffeine and alcohol','follow up with cardiologist regularly','monitor your pulse daily']},
+  {d:'Heart Failure',s:['breathlessness','fatigue','swollen_ankles','weight_gain','palpitations','cough'],desc:'Chronic condition where the heart cannot pump blood efficiently, causing shortness of breath, swollen feet, and fatigue.',p:['monitor your weight daily for fluid retention','reduce salt in your diet','stick to medications especially diuretics','avoid excessive exertion']},
+  {d:'Chronic Kidney Disease',s:['fatigue','swollen_ankles','blood_in_urine','frequent_urination','nausea','headache','breathlessness'],desc:'Gradual decline in kidney function over months or years, leading to waste buildup in blood, high blood pressure, and anemia.',p:['control blood pressure and diabetes','reduce protein, potassium and sodium in diet','avoid antibiotics and painkillers harmful to kidneys','undergo regular kidney function tests']},
+  {d:'Nephrotic Syndrome',s:['swollen_ankles','weight_gain','fatigue','loss_of_appetite','frequent_urination','pale_skin'],desc:'Kidney disorder characterized by leaking large amounts of protein in urine causing severe swelling and low blood protein.',p:['reduce salt to decrease swelling','take adequate protein in measured amounts','stick to prescribed medications','see kidney specialist regularly']},
+  {d:'Prostatitis',s:['painful_urination','lower_back_pain','groin_pain','frequent_urination','bladder_discomfort','testicular_pain'],desc:'Inflammation of the prostate gland causing pelvic and lower back pain and difficulty or pain during urination.',p:['drink plenty of water','sit in a warm bath to relieve pain','avoid alcohol and caffeine','take antibiotics as prescribed by doctor']},
+  {d:'Ovarian Cyst',s:['abdominal_pain','menstrual_pain','abnormal_menstruation','bloating','nausea','lower_back_pain'],desc:'Fluid-filled sacs on the ovaries, mostly harmless and self-resolving, but some cause pelvic pain, bloating, and menstrual changes.',p:['see doctor to determine cyst type','follow medical recommendations for monitoring or treatment','avoid intense exertion if cyst is large','undergo ultrasound monitoring']},
+  {d:'Endometriosis',s:['menstrual_pain','abdominal_pain','lower_back_pain','fatigue','abnormal_menstruation','painful_urination'],desc:'Endometrial-like tissue growing outside the uterus causing severe menstrual pain, pelvic pain and potentially affecting fertility.',p:['use hormonal medications as prescribed','do light exercise','take appropriate pain relievers','follow up with gynecologist']},
+  {d:'Polycystic Ovary Syndrome',s:['abnormal_menstruation','weight_gain','hair_loss','excessive_hunger','fatigue','depression'],desc:'Common hormonal disorder in women characterized by irregular periods, elevated male hormones, and ovarian cysts.',p:['maintain a healthy weight','exercise regularly','follow a low-carb diet','take hormonal medications as directed by doctor']},
+  {d:'Eczema',s:['itching','skin_rash','dry_skin','redness_of_eyes','blister','skin_peeling'],desc:'Chronic skin inflammation causing intense itching, dryness, redness and skin cracking, often linked to allergies and immune conditions.',p:['use moisturizer frequently','avoid harsh soaps and irritants','wear soft cotton clothing','identify your triggers and avoid them']},
+  {d:'Rosacea',s:['redness_of_eyes','skin_rash','burning_sensation','sensitivity_to_light','facial_pain'],desc:'Chronic skin disease affecting facial skin causing persistent redness, visible blood vessels, and sometimes pimples.',p:['avoid redness triggers (sun, heat, spices)','use sunscreen daily','avoid irritating skin products','see doctor for appropriate topical treatment']},
+  {d:'Shingles',s:['skin_rash','burning_sensation','itching','high_fever','fatigue','blister','sensitivity_to_light'],desc:'Viral disease from reactivation of the chickenpox virus, appearing as a painful rash along a nerve, more common in older adults.',p:['take antivirals early','apply cold compress to painful area','avoid touching the rash with your hands','avoid contact with those who have not had chickenpox']},
+  {d:'Measles',s:['skin_rash','high_fever','cough','runny_nose','redness_of_eyes','swelled_lymph_nodes','malaise'],desc:'Highly contagious viral disease causing fever, runny nose, cough, and a red rash spreading from face to body, preventable by vaccine.',p:['rest at home and avoid others','drink plenty of fluids','see doctor if complications appear','get vaccine for future prevention']},
+  {d:'Mumps',s:['swollen_glands','high_fever','headache','fatigue','muscle_pain','jaw_pain'],desc:'Viral disease affecting the salivary glands causing painful swelling of the cheeks and below ears, with fever and headache.',p:['rest well and apply cold compress to swelling','take appropriate pain relievers','avoid hard foods difficult to chew','avoid contact with others until recovered']},
+  {d:'Rubella',s:['skin_rash','mild_fever','swelled_lymph_nodes','joint_pain','headache','redness_of_eyes'],desc:'Contagious viral disease causing mild pink rash, fever, and swollen glands, very dangerous to the fetus if mother is infected.',p:['rest well at home','avoid contact with pregnant women especially in first months','take mild pain relievers','get MMR vaccine for prevention']},
+  {d:'Scarlet Fever',s:['high_fever','sore_throat','skin_rash','headache','vomiting','swollen_glands'],desc:'Bacterial disease caused by group A streptococci, characterized by fever, throat pain, and a rough sandpaper-like rash, common in children.',p:['take the full course of antibiotics','rest at home until recovered','drink plenty of warm fluids','avoid sharing eating utensils']},
+  {d:'Leptospirosis',s:['high_fever','headache','muscle_pain','vomiting','redness_of_eyes','chills','yellowish_skin'],desc:'Bacterial infection spread through animal urine (especially rats), causing fever, headache, muscle pain and potentially liver and kidney failure.',p:['avoid swimming in stagnant water','wear shoes and gloves when handling animals','take antibiotics as prescribed','see doctor early to avoid complications']},
+  {d:'Scabies',s:['itching','skin_rash','blister','red_spots_over_body','burning_sensation'],desc:'Skin infection caused by a tiny mite that burrows under the skin, causing intense itching especially at night and a skin rash.',p:['use prescribed permethrin cream','wash all clothing and bedding in hot water','treat all household members at the same time','avoid physical contact until cured']},
+  {d:'Ringworm',s:['itching','skin_rash','skin_peeling','redness_of_eyes','hair_loss'],desc:'Fungal skin infection affecting skin, scalp and nails, appearing as circular red scaly patches with raised edges.',p:['use antifungal cream','keep the affected area dry','avoid sharing clothes and towels','wash hands regularly and avoid touching the rash']},
+];
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let selected = new Set();
+let activeCat = null; // null = all
+
+// ═══════════════════════════════════════════
+//  LANG
+// ═══════════════════════════════════════════
+function setLang(l) {
+  lang = l;
+  document.documentElement.lang = l;
+  document.documentElement.dir  = l==='ar' ? 'rtl' : 'ltr';
+
+  document.getElementById('btn-ar').classList.toggle('active', l==='ar');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+
+  const S = STR[l];
+  document.getElementById('hdr-title').textContent     = S.hdrTitle;
+  document.getElementById('lbl-ptitle').textContent    = S.ptitle;
+  document.getElementById('lbl-status').textContent    = S.status;
+  document.getElementById('lbl-total').textContent     = S.totalLbl;
+  document.getElementById('lbl-selected').textContent  = S.selLbl;
+  document.getElementById('lbl-symlist').textContent   = S.symlist;
+  document.getElementById('lbl-dx').textContent        = S.dxBtn;
+  document.getElementById('lbl-clr').textContent       = S.clrBtn;
+  document.getElementById('lbl-empty').textContent     = S.emptyTxt;
+  document.getElementById('lbl-result').textContent    = S.resultLbl;
+  document.getElementById('lbl-conf').textContent      = S.confLbl;
+  document.getElementById('lbl-desc').textContent      = S.descLbl;
+  document.getElementById('lbl-prec').textContent      = S.precLbl;
+  document.getElementById('lbl-matched').textContent   = S.matchedLbl;
+  document.getElementById('lbl-warn').textContent      = S.warnLbl;
+  document.getElementById('searchInput').placeholder   = S.search;
+
+  const ico = document.querySelector('.search-ico');
+  if (l==='ar') {
+    ico.style.left='14px'; ico.style.right='auto';
+    document.getElementById('searchInput').style.paddingLeft='42px';
+    document.getElementById('searchInput').style.paddingRight='16px';
+  } else {
+    ico.style.right='14px'; ico.style.left='auto';
+    document.getElementById('searchInput').style.paddingRight='42px';
+    document.getElementById('searchInput').style.paddingLeft='16px';
+  }
+
+  buildCatTabs();
+  rebuildList();
+  updateChips();
+
+  // re-render result if visible
+  if(document.getElementById('resultWrap').classList.contains('show')){
+    const dname = document.getElementById('diseaseName').dataset.key;
+    if(dname) renderDiseaseResult(dname);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  CATEGORY TABS
+// ═══════════════════════════════════════════
+function buildCatTabs() {
+  const container = document.getElementById('catTabs');
+  container.innerHTML = '';
+  const cats = CATS[lang];
+  Object.keys(cats).forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-tab' + (cats[k]===activeCat ? ' active':'');
+    btn.textContent = k;
+    btn.onclick = () => {
+      activeCat = cats[k];
+      document.querySelectorAll('.cat-tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilters();
+    };
+    container.appendChild(btn);
+  });
+  // activate first tab
+  if(container.firstChild) container.firstChild.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+//  SYMPTOM LIST
+// ═══════════════════════════════════════════
+function symLabel(s) {
+  if(lang==='ar') return SYM_AR[s] || s.replace(/_/g,' ');
+  return s.replace(/_/g,' ');
+}
+
+function rebuildList() {
+  const list = document.getElementById('symList');
+  list.innerHTML = '';
+  const syms = [...new Set(ALL_SYMS)];
+  document.getElementById('totalCount').textContent = syms.length;
+
+  syms.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'sym-item' + (selected.has(s) ? ' selected':'');
+    el.dataset.sym = s;
+    el.innerHTML = `
+      <div class="sym-check">${selected.has(s)?'✓':''}</div>
+      <span class="sym-name">${symLabel(s)}</span>
+    `;
+    el.addEventListener('click', () => toggleSym(s, el));
+    list.appendChild(el);
+  });
+
+  applyFilters();
+  updateVis();
+}
+
+function toggleSym(s, el) {
+  if(selected.has(s)){ selected.delete(s); el.classList.remove('selected'); el.querySelector('.sym-check').textContent=''; }
+  else               { selected.add(s);    el.classList.add('selected');    el.querySelector('.sym-check').textContent='✓'; }
+  document.getElementById('selectedCount').textContent = selected.size;
+  updateChips();
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase().replace(/\s+/g,'_');
+  document.querySelectorAll('.sym-item').forEach(el => {
+    const s = el.dataset.sym;
+    const catOk = !activeCat || activeCat.includes(s);
+    const lbl = symLabel(s).toLowerCase();
+    const qOk = !q || lbl.includes(q.replace(/_/g,' ')) || s.includes(q);
+    el.classList.toggle('hidden', !(catOk && qOk));
+  });
+  updateVis();
+}
+
+function filterSymptoms(v) { applyFilters(); }
+
+function updateVis() {
+  const vis = document.querySelectorAll('.sym-item:not(.hidden)').length;
+  document.getElementById('visCount').textContent = vis;
+}
+
+// ═══════════════════════════════════════════
+//  CHIPS
+// ═══════════════════════════════════════════
+function updateChips() {
+  const bar = document.getElementById('chipsBar');
+  bar.innerHTML = '';
+  selected.forEach(s => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.innerHTML = `${symLabel(s)} <span class="x">✕</span>`;
+    chip.onclick = () => {
+      const el = document.querySelector(`.sym-item[data-sym="${s}"]`);
+      if(el) toggleSym(s, el);
+    };
+    bar.appendChild(chip);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  DIAGNOSIS ENGINE
+// ═══════════════════════════════════════════
+function diagnose() {
+  const S = STR[lang];
+  if(selected.size === 0){ alert(S.selectFirst); return; }
+
+  const sel = Array.from(selected);
+  let best=null, bestScore=-1;
+
+  RULES.forEach(r => {
+    const ov = r.s.filter(x=>sel.includes(x)).length;
+    const sc = ov / Math.max(r.s.length, sel.length);
+    if(sc>bestScore || (sc===bestScore && ov>(best?RULES.find(x=>x.d===best.d)?.s.filter(x=>sel.includes(x)).length:0))){
+      bestScore=sc; best=r;
+    }
+  });
+
+  if(!best || bestScore===0){
+    best = RULES.reduce((a,b)=>{
+      const ao=a.s.filter(x=>sel.includes(x)).length;
+      const bo=b.s.filter(x=>sel.includes(x)).length;
+      return bo>ao?b:a;
+    });
+    bestScore = best.s.filter(x=>sel.includes(x)).length / sel.length;
+  }
+
+  const conf = Math.min(95, Math.round(bestScore*100+15));
+  const totalSev = sel.reduce((sum,s)=>sum+(SEV[s]||0),0);
+  let sevClass, sevTxt;
+  if(totalSev>=13){ sevClass='sev-high';   sevTxt=STR[lang].sevHigh; }
+  else if(totalSev>=7){ sevClass='sev-medium'; sevTxt=STR[lang].sevMed; }
+  else               { sevClass='sev-low';    sevTxt=STR[lang].sevLow; }
+
+  // Show matched
+  const matched   = best.s.filter(x=>sel.includes(x));
+  const unmatched = best.s.filter(x=>!sel.includes(x));
+
+  document.getElementById('emptyState').style.display='none';
+  const rw = document.getElementById('resultWrap');
+  rw.style.display='none';
+  rw.classList.add('show');
+  rw.style.display='';
+
+  // Animate in
+  rw.style.opacity='0'; rw.style.transform='translateY(10px)';
+  setTimeout(()=>{ rw.style.transition='all .35s ease'; rw.style.opacity='1'; rw.style.transform='none'; },10);
+
+  document.getElementById('diseaseName').dataset.key = best.d;
+  renderDiseaseResult(best.d, conf, sevClass, sevTxt, matched, unmatched, best.p);
+}
+
+function renderDiseaseResult(dname, conf, sevClass, sevTxt, matched, unmatched, precsEN) {
+  // If called from setLang re-render, fetch stored values
+  if(conf===undefined){
+    // just update labels
+    const dEl = document.getElementById('diseaseName');
+    dEl.textContent = lang==='ar' ? (DISEASE_AR[dname]||dname) : dname;
+    document.getElementById('descTxt').textContent = lang==='ar'
+      ? (DESC_AR[dname]||'No description.')
+      : RULES.find(r=>r.d===dname)?.desc || 'No description.';
+    // update prec lang
+    const precEl = document.getElementById('precList');
+    const precsAr = PREC_AR[dname];
+    if(lang==='ar' && precsAr){
+      precEl.innerHTML='';
+      precsAr.forEach((p,i)=>{
+        const li=document.createElement('li');
+        li.innerHTML=`<span class="prec-num">${i+1}</span><span>${p}</span>`;
+        precEl.appendChild(li);
+      });
+    }
+    return;
+  }
+
+  // Disease name
+  document.getElementById('diseaseName').textContent = lang==='ar' ? (DISEASE_AR[dname]||dname) : dname;
+
+  // Confidence
+  document.getElementById('confFill').style.width='0%';
+  document.getElementById('confVal').textContent='0%';
+  setTimeout(()=>{
+    document.getElementById('confFill').style.width=conf+'%';
+    animNum('confVal',0,conf,800,'%');
+  },100);
+
+  // Severity
+  const badge = document.getElementById('sevBadge');
+  badge.className='sev-badge '+sevClass;
+  document.getElementById('sevTxt').textContent=sevTxt;
+
+  // Description
+  document.getElementById('descTxt').textContent = lang==='ar'
+    ? (DESC_AR[dname]||'لا يوجد وصف.')
+    : RULES.find(r=>r.d===dname)?.desc||'No description.';
+
+  // Matched symptoms
+  const tagsEl = document.getElementById('matchedTags');
+  tagsEl.innerHTML='';
+  (matched||[]).forEach(s=>{
+    const t=document.createElement('span');
+    t.className='tag matched'; t.textContent=symLabel(s);
+    tagsEl.appendChild(t);
+  });
+  (unmatched||[]).forEach(s=>{
+    const t=document.createElement('span');
+    t.className='tag unmatched'; t.textContent=symLabel(s);
+    tagsEl.appendChild(t);
+  });
+
+  // Precautions
+  const precEl=document.getElementById('precList');
+  precEl.innerHTML='';
+  const precsAr=PREC_AR[dname];
+  const useAr = lang==='ar' && precsAr;
+  (useAr ? precsAr : (precsEN||[])).forEach((p,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<span class="prec-num">${i+1}</span><span>${p}</span>`;
+    precEl.appendChild(li);
+  });
+}
+
+function clearAll() {
+  selected.clear();
+  document.querySelectorAll('.sym-item').forEach(el=>{
+    el.classList.remove('selected');
+    el.querySelector('.sym-check').textContent='';
+  });
+  document.getElementById('selectedCount').textContent='0';
+  document.getElementById('chipsBar').innerHTML='';
+  document.getElementById('emptyState').style.display='';
+  document.getElementById('resultWrap').classList.remove('show');
+}
+
+function animNum(id,from,to,dur,suf){
+  const el=document.getElementById(id);
+  const start=performance.now();
+  function step(now){
+    const p=Math.min((now-start)/dur,1);
+    el.textContent=Math.round(from+(to-from)*(1-Math.pow(1-p,3)))+suf;
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// INIT
+buildCatTabs();
+rebuildList();
+setLang('ar');
+</script>
+</body>
+</html>
